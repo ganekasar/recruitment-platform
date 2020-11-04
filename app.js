@@ -13,24 +13,21 @@ mongoose.connect('mongodb://localhost:27017/recruitdb', {useNewUrlParser: true})
 
 const questionsSchema = {
     question: String,
-    answer: String
+    option1: String,
+    option2: String,
+    option3: String,
+    option4: String
+};
+
+const responseSchema = {
+    answers: String
 };
   
 const Question = mongoose.model("Question", questionsSchema);
-  
-const ques1 = new Question({
-    question: "Is this a question?",
-    answer: "Definetely No"
-});
 
-const ques2 = new Question({
-    question: "This is second question?",
-    answer: "You are correct"
-});
+const Response = mongoose.model("Response", responseSchema);
   
-const defaultQuestions = [ques1, ques2];  
-
-app.get("/", function(req, res){
+app.get("/", function(req, res) {
     res.render("landing");
 });
 
@@ -44,11 +41,17 @@ app.get("/createtest", function(req, res){
 
 app.post("/createtest", function(req, res) {
     const ques = req.body.question;
-    const ans = req.body.answer;
+    const opt1 = req.body.option1;
+    const opt2 = req.body.option2;
+    const opt3 = req.body.option3;
+    const opt4 = req.body.option4;
 
     const item = new Question({
         question: ques,
-        answer: ans
+        option1: opt1,
+        option2: opt2,
+        option3: opt3,
+        option4: opt4,
     });
 
     item.save();
@@ -74,6 +77,19 @@ app.get("/test", function(req, res){
         }
     });
 });
+
+app.post("/test", function(req, res){
+    const len = req.body.length;
+    var ans = "";
+    var pref = "q";
+
+    for(var i = 0; i < len; i++) {
+        var str = pref.concat(i.toString());
+        ans = ans.concat(req.body[str]);
+    }
+
+    console.log(ans);
+})
 
 app.listen(3000, function(){
     console.log("SERVER HAS STARTED!");
