@@ -1,0 +1,25 @@
+<%- include("partials/header") %>
+    
+    <h1>You can create test here!</h1>
+
+    <div class="conatiner-fluid">
+        <div>
+            <form action="/createtest" method="POST">
+                <div >
+                    <input type="text" name="question" placeholder="Question">
+                </div>
+                <div>
+                    <input type="text" name="answer" placeholder="Answer">
+                </div>
+                <div>
+                    <button type="submit">Add</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <form action="/test" method="GET">
+        <button type="submit" class="btn btn-success btn-lg">Attempt Test</button>
+    </form>
+    
+<%- include("partials/footer") %>
