@@ -4,6 +4,7 @@
         <h1>Test will be displayed here!</h1>
         <form action="/test" method="POST">
             <% for(var i=0; i<foundQuestions.length; i++) { %>
+                <h3> <%= foundQuestions[i]._id %> </h3>
                 <h2> <%= i+1 %>. <%= foundQuestions[i].question %> </h2>
                 
                     <p>Select one option</p>
@@ -15,11 +16,11 @@
                     <input type="radio" id="C" name="q<%=i%>" value="C">  <%= foundQuestions[i].option3 %> <br>
                     <label for="D">D. </label>
                     <input type="radio" id="D" name="q<%=i%>" value="D">  <%= foundQuestions[i].option4 %> <br>
-                
+            
             <% } %>
 
-            <input type="number" name="length" value="<%= foundQuestions.length %>" hidden>
-
+            <input type="number" name="length" value="<%=foundQuestions.length%>" hidden> 
+        
             <button type="submit">Submit</button>
         </form>
 

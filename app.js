@@ -21,7 +21,8 @@ const questionsSchema = {
 };
 
 const responseSchema = {
-    answers: String
+    answer: String,
+    question: questionsSchema
 };
   
 const Question = mongoose.model("Question", questionsSchema);
@@ -81,15 +82,23 @@ app.get("/test", function(req, res){
 
 app.post("/test", function(req, res){
     const len = req.body.length;
-    var ans = "";
-    var pref = "q";
+    var pref1 = "q";
+    //var pref2 = "qid";
 
     for(var i = 0; i < len; i++) {
-        var str = pref.concat(i.toString());
-        ans = ans.concat(req.body[str]);
+        var str1 = pref1.concat(i.toString());
+        var ans = req.body[str1];
+        //var str2 = pref2.concat(i.toString());
+        //var ques_id = req.body[str2];
+
+        //console.log(ques_id);
     }
 
-    console.log(ans);
+    //console.log(req.body.);
+
+    //console.log(ans);
+
+    res.render("testsubmit");
 })
 
 app.listen(3000, function(){
