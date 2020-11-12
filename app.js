@@ -85,13 +85,34 @@ app.get("/test", function(req, res){
 app.post("/test", function(req, res){
     const len = req.body.length;
     var pref1 = "q";
+    var pref2 = "ques";
     var answers = [];
     //var pref2 = "qid";
 
     for(var i = 0; i < len; i++) {
         var str1 = pref1.concat(i.toString());
         var ans = req.body[str1];
+        var str2 = pref2.concat(i.toString());
+        var ques = req.body[str2];
+        console.log(ques);
         answers.push(ans);
+
+        Question.findById({_id : ques}, function(err, foundQuestion) {
+            if(err) {
+                res.redirect("/test");
+            } else {
+                const item = new Response({
+                    answer: ans,
+                    question: foundQuestion
+                });
+
+                item.save();
+
+                //res.render("testsubmit");
+            }
+        })
+
+        
         //var str2 = pref2.concat(i.toString());
         //var ques_id = req.body[str2];
 
