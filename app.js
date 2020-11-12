@@ -11,7 +11,12 @@ app.use(express.static("public"));
 
 mongoose.connect('mongodb://localhost:27017/recruitdb', {useNewUrlParser: true});
 
+const testSchema = {
+    name: String
+};
+
 const questionsSchema = {
+    test: testSchema,
     question: String,
     option1: String,
     option2: String,
@@ -24,6 +29,8 @@ const responseSchema = {
     answer: String,
     question: questionsSchema
 };
+
+const Test = mongoose.model("Test", testSchema);
   
 const Question = mongoose.model("Question", questionsSchema);
 
@@ -42,12 +49,73 @@ app.get("/createtest", function(req, res){
 });
 
 app.post("/createtest", function(req, res) {
+    const name = req.body.name;
+
+    const item = new Test({
+        name: name
+    });
+
+    item.save();
+
+    res.render("testadded");
+});
+
+app.get("/selecttest", function(req, res) {
+    Test.find({}, function(err, foundTests) {
+        if(err) {
+            res.redirect("/createtest");
+        } else {
+            res.render("selecttest", {foundTests : foundTests});
+        }
+    });
+});
+
+app.post("/selecttest", function(req, res) {
+    const test = req.body.name;
+
+    console.log(test);
+
+    res.redirect("/" + test + "/managetest");
+});
+
+app.get("/:id/managetest", function(req, res) {
+
+    const test = req.params.id;
+
+    console.log(test);
+
+    res.render("managetest", {test: test});
+    
+    // Test.find({_id: test}, function(err, foundTest) {
+    //     if(err) {
+    //         res.redirect("/createtest");
+    //     } else {
+
+            
+    //         // Question.find({}, function(err, foundQuestions) {
+    //         //     if(err) {
+    //         //         console.log("Error occured while fetching data from database!");
+    //         //         res.redirect("/createtest");
+    //         //     } else {
+    //         //         res.render("test", {foundQuestions: foundQuestions});
+    //         //     }
+    //         // });
+    //     }
+    // });
+
+    
+
+    //res.render("managetest");
+});
+
+app.post("/managetest", function(req, res) {
     const ques = req.body.question;
     const opt1 = req.body.option1;
     const opt2 = req.body.option2;
     const opt3 = req.body.option3;
     const opt4 = req.body.option4;
     const ans = req.body.answer;
+    const test = req.body.test;
 
     const item = new Question({
         question: ques,
@@ -55,12 +123,13 @@ app.post("/createtest", function(req, res) {
         option2: opt2,
         option3: opt3,
         option4: opt4,
-        answer: ans
+        answer: ans,
+        test: test
     });
 
     item.save();
 
-    res.redirect("/test");
+    res.redirect("/" + test + "/test");
 })
 
 app.get("/signup", function(req, res){
@@ -71,8 +140,11 @@ app.get("/login", function(req, res){
     res.render("login");
 });
 
-app.get("/test", function(req, res){
-    Question.find({}, function(err, foundQuestions) {
+app.get("/:id/test", function(req, res){
+    
+    const test = req.params.id;
+
+    Question.find({test : test}, function(err, foundQuestions) {
         if(err) {
             console.log("Error occured while fetching data from database!");
             res.redirect("/createtest");
