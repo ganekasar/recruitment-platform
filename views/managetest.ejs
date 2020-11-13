@@ -1,5 +1,5 @@
 <%- include("partials/header") %>
-
+    
     <div class="container">
         <h1>You can create test here!</h1>
         <h2> <%= test %> </h2>
@@ -33,9 +33,9 @@
 
     <div class="container">
         <h1>You can view test from here..</h1>
-        <form action="/<%= test %>/test" method="GET">
+        <form action="<%=test%>/test" method="GET">
             <button type="submit" class="btn btn-success btn-lg">Attempt Test</button>
         </form>
     </div>
-
+    
 <%- include("partials/footer") %>
