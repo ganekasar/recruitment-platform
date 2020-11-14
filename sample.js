@@ -28,7 +28,7 @@ app.use(require("express-session")({
 
 app.use(passport.initialize());
 app.use(passport.session());
-passport.use(new LocalStrategy(Candidate.authenticate()));  
+passport.use(new LocalStrategy(Candidate.authenticate()));
 
 
 
@@ -132,7 +132,8 @@ app.post("/managetest", function(req, res) {
     const opt3 = req.body.option3;
     const opt4 = req.body.option4;
     const ans = req.body.answer;
-    
+    const test=req.body.test;
+
     const item = new Question({
         question: ques,
         option1: opt1,
@@ -140,11 +141,11 @@ app.post("/managetest", function(req, res) {
         option3: opt3,
         option4: opt4,
         answer: ans,
-        test: req.body.test
+        test: test
     });
 
     item.save();
-    res.render("addedsuccessfully",{testname:test.name})
+    res.render("addedsuccessfully",{testname:test});
     //res.redirect("/"+test.name+"/managetest");
 })
 
@@ -283,7 +284,7 @@ app.post("/studentRegister", function(req, res) {
         passport.authenticate("local")(req,res,function(){
             res.redirect("/");
         })
-        
+
     });
 })
 
@@ -294,11 +295,11 @@ app.get("/studentLogin", function(req, res){
 
 //Handle login logic
 //app.post("/studentLogin, middleware, function ")
-app.post("/studentLogin", passport.authenticate("local", 
+app.post("/studentLogin", passport.authenticate("local",
     {successRedirect: "/",
      failureRedirect: "/studentLogin"
     }), function(req, res) {
-    
+
 });
 
 //Logout logic
@@ -309,6 +310,6 @@ app.get("/studentLogout", function(req, res) {
 
 
 
-app.listen(process.env.PORT, process.env.IP, function(){
+app.listen(process.env.PORT||3000, function(){
     console.log("SERVER HAS STARTED!");
-}); 
+});
