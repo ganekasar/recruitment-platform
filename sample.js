@@ -7,18 +7,32 @@ const Candidate = require("./models/candidate.js");
 const Test = require("./models/test.js");
 const Question = require("./models/question.js");
 const Response = require("./models/response.js");
+var express         = require("express"),
+    mongoose        = require("mongoose"),
+    passport        = require("passport"),
+    LocalStrategy   = require("passport-local"),
+    bodyParser      = require("body-parser"),
+    Candidate       = require("./models/candidate"),
+    Test            = require("./models/test"),
+    Question        = require("./models/question"),
+    Response        = require("./models/response");
 
 var app = express();
-
 app.set('view engine', 'ejs');
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static(__dirname + "/public"));
 
-mongoose.connect('mongodb://localhost:27017/recruitdb', {useNewUrlParser: true,useUnifiedTopology: true});
+
+app.use(bodyParser.urlencoded({extended : true}));
+app.use(express.static(__dirname+"/public"));
+
+mongoose.connect("mongodb://localhost/project",{useNewUrlParser: true,useUnifiedTopology: true});
 
 //Passport Configuration
 
+
+//Passport Configuration
 app.use(require("express-session")({
     secret : "This is a secret page",
     resave : false,
@@ -42,14 +56,34 @@ app.use(function(req, res, next){
 
 
 //Landing Page Routes
+passport.use(new LocalStrategy(Candidate.authenticate()));
 
-app.get("/", function(req, res) {
-    res.render("landing");
-});
+
+
+passport.serializeUser(Candidate.serializeUser());
+passport.deserializeUser(Candidate.deserializeUser());
+
+//Middleware For currently logged in user
+app.use(function(req, res, next){
+    res.locals.currentUser = req.user;  //This is available to all the templates
+    next();                             //execute next code
+})
+
+app.get("/", function(req, res){
+    console.log(req.user);
+    res.render("landing.ejs");
+})
 
 app.get("/company", function(req, res){
-    res.render("companyLanding");
-});
+    res.render("companyLanding.ejs");
+})
+
+
+
+
+//TEST ROUTES
+
+
 
 //Student Routes
 
@@ -158,6 +192,8 @@ app.post("/managetest", function(req, res) {
     const ans = req.body.answer;
     const test = req.body.test;
     
+    const test=req.body.test;
+
     const item = new Question({
         question: ques,
         option1: opt1,
@@ -169,9 +205,10 @@ app.post("/managetest", function(req, res) {
     });
 
     item.save();
-    res.render("addedsuccessfully",{testname:test.name})
+    res.render("addedsuccessfully",{testname:test});
     //res.redirect("/"+test.name+"/managetest");
 });
+})
 
 app.get("/:id/test", function(req, res){
 
@@ -266,11 +303,11 @@ app.get("/:id/viewtest", function(req, res){
     const test = new Test({
       name:req.params.id
     });
-//  console.log(test);
-
-    Question.find({test : {name:test.name}}, function(err, foundQuestions) {
+  const id = test.name;
+    Question.find({test : id}, function(err, foundQuestions) {
         if(err) {
             console.log("Error occured while fetching data from database!");
+            console.log(err);
             res.redirect("/createtest");
         } else {
   //        console.log("Sudhanshu");
@@ -278,6 +315,8 @@ app.get("/:id/viewtest", function(req, res){
         }
     });
 });
+
+
 
 //AUTH ROUTES//
 
@@ -300,6 +339,7 @@ app.post("/studentRegister", function(req, res) {
             res.redirect("/");
         })
         
+
     });
 })
 
@@ -315,6 +355,11 @@ app.post("/studentLogin", passport.authenticate("local",
      failureRedirect: "/studentLogin"
     }), function(req, res) {
     
+app.post("/studentLogin", passport.authenticate("local",
+    {successRedirect: "/",
+     failureRedirect: "/studentLogin"
+    }), function(req, res) {
+
 });
 
 //Logout logic
@@ -324,5 +369,8 @@ app.get("/studentLogout", function(req, res) {
 })
 
 app.listen(3000, function(){
+
+
+app.listen(process.env.PORT||3000, function(){
     console.log("SERVER HAS STARTED!");
 });
