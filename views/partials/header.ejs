@@ -97,6 +97,11 @@
     padding-left: 50px;
 }
 
+.nav-style{
+    margin-left: 50px;
+    margin-right : 50px;
+}
+
 </style>
 
     </head>
@@ -104,14 +109,21 @@
     <body>
 
         <nav class="navbar navbar-default">
-            <div class="container">
+            <div class = "nav-style">
                 <div class="navbar-header" >
                     <a href="/" class="navbar-brand">+ONE</a>
                 </div>
                 <ul class="nav navbar-nav">
                     <li><a href="/company">Companies</a></li>
-                    <li><a href="/login">Login</a></li>
-                    <li><a href="/signup">Signup</a></li>
+                    <% if(!currentUser){ %>
+                        <li><a href="/studentLogin">Login</a></li>
+                        <li><a href="/studentRegister">Signup</a></li>
+                    <% } else { %>
+                        <li><a href="#">Signed in as <%= currentUser.name%></a></li>
+                        <li><a href="/studentLogout">Logout</a></li>
+                    <% }%>
+                    
+                    
                 </ul>
                 <form class="form-inline my-2 my-lg-0 nav navbar-nav navbar-right">
                   <div style="margin-top:8px">
@@ -120,6 +132,6 @@
                   </div>
 
                 </form>
-             </div>
+            </div>
 
         </nav>

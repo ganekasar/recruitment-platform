@@ -1,7 +1,7 @@
 var express         = require("express"),
     mongoose        = require("mongoose"),
     passport        = require("passport"),
-    localStrategy   = require("passport-local"),
+    LocalStrategy   = require("passport-local"),
     bodyParser      = require("body-parser"),
     Candidate       = require("./models/candidate"),
     Test            = require("./models/test"),
@@ -19,8 +19,30 @@ app.use(express.static(__dirname+"/public"));
 mongoose.connect("mongodb://localhost/project",{useNewUrlParser: true,useUnifiedTopology: true});
 
 
+//Passport Configuration
+app.use(require("express-session")({
+    secret : "This is a secret page",
+    resave : false,
+    saveUninitialized : false
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new LocalStrategy(Candidate.authenticate()));  
+
+
+
+passport.serializeUser(Candidate.serializeUser());
+passport.deserializeUser(Candidate.deserializeUser());
+
+//Middleware For currently logged in user
+app.use(function(req, res, next){
+    res.locals.currentUser = req.user;  //This is available to all the templates
+    next();                             //execute next code
+})
 
 app.get("/", function(req, res){
+    console.log(req.user);
     res.render("landing.ejs");
 })
 
@@ -29,41 +51,6 @@ app.get("/company", function(req, res){
 })
 
 
-//STUDENT ROUTES
-
-app.get("/studentRegister", function(req, res){
-    res.render("studentRegister.ejs");
-});
-
-
-app.get("/candidates", function(req, res){
-    res.send("HI");
-})
-
-//CREATE ROUTE
-app.post("/candidates" , function(req , res){
-   var newName = req.body.candidate_name;
-   var newInstitute = req.body.institute;
-   var newEmail = req.body.email;
-   var newLinkedin = req.body.linkedin;
-   var candidateObject = {name : newName , Institute:newInstitute, email : newEmail, LinkedIn :newLinkedin};
-   //Create new candidate and add to the database
-   Candidate.create(candidateObject , function(err , newCandidate){
-       if(err){
-           console.log(err);
-       } else{
-           // redirect
-           res.redirect("/")
-       }
-   })
-});
-
-
-
-
-app.get("/studentLogin", function(req, res){
-    res.render("studentLogin.ejs");
-});
 
 
 //TEST ROUTES
@@ -160,14 +147,6 @@ app.post("/managetest", function(req, res) {
     res.render("addedsuccessfully",{testname:test.name})
     //res.redirect("/"+test.name+"/managetest");
 })
-
-app.get("/signup", function(req, res){
-    res.render("signup");
-});
-
-app.get("/login", function(req, res){
-    res.render("login");
-});
 
 app.get("/:id/test", function(req, res){
 
@@ -282,6 +261,54 @@ app.get("/:id/viewtest", function(req, res){
     });
 });
 
-app.listen(3000, function(){
-    console.log("SERVER HAS STARTED!");
+
+
+//AUTH ROUTES//
+
+//Show register form
+
+app.get("/studentRegister", function(req, res){
+    res.render("studentRegister.ejs");
 });
+
+//Handle signup logic
+app.post("/studentRegister", function(req, res) {
+    var newCandidate = new Candidate({name : req.body.candidate_name, username : req.body.username, Institute : req.body.institute, LinkedIn : req.body.linkedin })
+    Candidate.register(newCandidate, req.body.password, function(err, user){
+        if(err){
+            console.log(err);
+            return res.render("studentRegister");
+        }
+        //res.redirect("/");
+        passport.authenticate("local")(req,res,function(){
+            res.redirect("/");
+        })
+        
+    });
+})
+
+//Show login form
+app.get("/studentLogin", function(req, res){
+    res.render("studentLogin.ejs");
+});
+
+//Handle login logic
+//app.post("/studentLogin, middleware, function ")
+app.post("/studentLogin", passport.authenticate("local", 
+    {successRedirect: "/",
+     failureRedirect: "/studentLogin"
+    }), function(req, res) {
+    
+});
+
+//Logout logic
+app.get("/studentLogout", function(req, res) {
+    req.logout();
+     res.redirect("/");
+})
+
+
+
+app.listen(process.env.PORT, process.env.IP, function(){
+    console.log("SERVER HAS STARTED!");
+}); 
