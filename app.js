@@ -1,121 +1,48 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-const passport = require('passport');
-const LocalStrategy = require('passport-local');
-const Candidate = require("./models/candidate.js");
-const Test = require("./models/test.js");
-const Question = require("./models/question.js");
-const Response = require("./models/response.js");
-var express         = require("express"),
-    mongoose        = require("mongoose"),
-    passport        = require("passport"),
-    LocalStrategy   = require("passport-local"),
-    bodyParser      = require("body-parser"),
-    Candidate       = require("./models/candidate"),
-    Test            = require("./models/test"),
-    Question        = require("./models/question"),
-    Response        = require("./models/response");
 
 var app = express();
+
 app.set('view engine', 'ejs');
 
 app.use(bodyParser.urlencoded({extended: true}));
-app.use(express.static(__dirname + "/public"));
-
-
-app.use(bodyParser.urlencoded({extended : true}));
 app.use(express.static(__dirname+"/public"));
 
-mongoose.connect("mongodb://localhost/project",{useNewUrlParser: true,useUnifiedTopology: true});
+mongoose.connect('mongodb://localhost:27017/recruitdb', {useNewUrlParser: true,useUnifiedTopology: true});
 
-//Passport Configuration
+const testSchema = {
+    name: String
+};
 
+const questionsSchema = {
+    test: testSchema,
+    question: String,
+    option1: String,
+    option2: String,
+    option3: String,
+    option4: String,
+    answer: String
+};
 
-//Passport Configuration
-app.use(require("express-session")({
-    secret : "This is a secret page",
-    resave : false,
-    saveUninitialized : false
-}));
+const responseSchema = {
+    answer: String,
+    question: questionsSchema
+};
 
-app.use(passport.initialize());
-app.use(passport.session());
-passport.use(new LocalStrategy(Candidate.authenticate()));  
+const Test = mongoose.model("Test", testSchema);
 
-passport.serializeUser(Candidate.serializeUser());
-passport.deserializeUser(Candidate.deserializeUser());
+const Question = mongoose.model("Question", questionsSchema);
 
+const Response = mongoose.model("Response", responseSchema);
 
-//Middleware For currently logged in user
-
-app.use(function(req, res, next){
-    res.locals.currentUser = req.user;  //This is available to all the templates
-    next();                             //execute next code
+app.get("/", function(req, res) {
+    res.render("landing");
 });
-
-
-//Landing Page Routes
-passport.use(new LocalStrategy(Candidate.authenticate()));
-
-
-
-passport.serializeUser(Candidate.serializeUser());
-passport.deserializeUser(Candidate.deserializeUser());
-
-//Middleware For currently logged in user
-app.use(function(req, res, next){
-    res.locals.currentUser = req.user;  //This is available to all the templates
-    next();                             //execute next code
-})
-
-app.get("/", function(req, res){
-    console.log(req.user);
-    res.render("landing.ejs");
-})
 
 app.get("/company", function(req, res){
-    res.render("companyLanding.ejs");
-})
-
-
-
-
-//TEST ROUTES
-
-
-
-//Student Routes
-
-app.get("/studentRegister", function(req, res) {
-    res.render("studentRegister");
+    res.render("companyLanding");
 });
-
-app.get("/candidates", function(req, res) {
-    res.send("Hello");
-});
-
-app.post("/candidates", function(req, res) {
-    const newName = req.body.candidate_name;
-    const newInstitute = req.body.institute;
-    const newEmail = req.body.email;
-    const newLinkedin = req.body.linkedin;
-    const candidateObject = {name : newName , Institute:newInstitute, email : newEmail, LinkedIn :newLinkedin};
-   
-    Candidate.create(candidateObject , function(err , newCandidate){
-       if(err){
-           console.log(err);
-       } else{
-           res.redirect("/")
-       }
-   })
-});
-
-app.get("studentLogin", function(req, res) {
-    res.render("studentLogin");
-});
-
-//Test Routes
 
 app.get("/createtest", function(req, res){
     res.render("createTest");
@@ -138,7 +65,7 @@ app.get("/selecttest", function(req, res) {
         if(err) {
             res.redirect("/createtest");
         } else {
-          if(foundTests == 0){
+          if(foundTests ==0){
             res.render("notest");
           }else{
           res.render("selecttest", {foundTests : foundTests});
@@ -180,6 +107,8 @@ app.get("/:id/managetest", function(req, res) {
     //     }
     // });
 
+
+
     //res.render("managetest");
 });
 
@@ -190,9 +119,9 @@ app.post("/managetest", function(req, res) {
     const opt3 = req.body.option3;
     const opt4 = req.body.option4;
     const ans = req.body.answer;
-    const test = req.body.test;
-    
-    const test=req.body.test;
+    const test = new Test({
+          name: req.body.test
+    });
 
     const item = new Question({
         question: ques,
@@ -205,8 +134,16 @@ app.post("/managetest", function(req, res) {
     });
 
     item.save();
-    res.render("addedsuccessfully",{testname:test});
+    res.render("addedsuccessfully",{testname:test.name})
     //res.redirect("/"+test.name+"/managetest");
+})
+
+app.get("/signup", function(req, res){
+    res.render("signup");
+});
+
+app.get("/login", function(req, res){
+    res.render("login");
 });
 })
 
@@ -217,7 +154,7 @@ app.get("/:id/test", function(req, res){
     });
 //  console.log(test);
 
-    Question.find({test : test.name}, function(err, foundQuestions) {
+    Question.find({test : {name:test.name}}, function(err, foundQuestions) {
         if(err) {
             console.log("Error occured while fetching data from database!");
             res.redirect("/createtest");
@@ -256,6 +193,12 @@ app.post("/test", function(req, res){
                 //res.render("testsubmit");
             }
         })
+
+
+        //var str2 = pref2.concat(i.toString());
+        //var ques_id = req.body[str2];
+
+        //console.log(ques_id);
     }
 
     Question.find({}, function(err, foundQuestions) {
@@ -303,11 +246,11 @@ app.get("/:id/viewtest", function(req, res){
     const test = new Test({
       name:req.params.id
     });
-  const id = test.name;
-    Question.find({test : id}, function(err, foundQuestions) {
+//  console.log(test);
+
+    Question.find({test : {name:test.name}}, function(err, foundQuestions) {
         if(err) {
             console.log("Error occured while fetching data from database!");
-            console.log(err);
             res.redirect("/createtest");
         } else {
   //        console.log("Sudhanshu");
@@ -316,61 +259,6 @@ app.get("/:id/viewtest", function(req, res){
     });
 });
 
-
-
-//AUTH ROUTES//
-
-//Show register form
-
-app.get("/studentRegister", function(req, res){
-    res.render("studentRegister.ejs");
-});
-
-//Handle signup logic
-app.post("/studentRegister", function(req, res) {
-    var newCandidate = new Candidate({name : req.body.candidate_name, username : req.body.username, Institute : req.body.institute, LinkedIn : req.body.linkedin })
-    Candidate.register(newCandidate, req.body.password, function(err, user){
-        if(err){
-            console.log(err);
-            return res.render("studentRegister");
-        }
-        //res.redirect("/");
-        passport.authenticate("local")(req,res,function(){
-            res.redirect("/");
-        })
-        
-
-    });
-})
-
-//Show login form
-app.get("/studentLogin", function(req, res){
-    res.render("studentLogin.ejs");
-});
-
-//Handle login logic
-//app.post("/studentLogin, middleware, function ")
-app.post("/studentLogin", passport.authenticate("local", 
-    {successRedirect: "/",
-     failureRedirect: "/studentLogin"
-    }), function(req, res) {
-    
-app.post("/studentLogin", passport.authenticate("local",
-    {successRedirect: "/",
-     failureRedirect: "/studentLogin"
-    }), function(req, res) {
-
-});
-
-//Logout logic
-app.get("/studentLogout", function(req, res) {
-    req.logout();
-     res.redirect("/");
-})
-
 app.listen(3000, function(){
-
-
-app.listen(process.env.PORT||3000, function(){
     console.log("SERVER HAS STARTED!");
 });
