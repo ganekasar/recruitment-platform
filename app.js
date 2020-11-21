@@ -6,10 +6,12 @@ var express         = require("express"),
     Candidate       = require("./models/candidate"),
     Test            = require("./models/test"),
     Question        = require("./models/question"),
-    Response        = require("./models/response");
+    Response        = require("./models/response"),
+    middleware      = require("./middleware");
 
 var app = express();
 app.set('view engine', 'ejs');
+var isAdmin = false;
 
 
 
@@ -57,8 +59,8 @@ app.get("/company", function(req, res){
 
 
 
-app.get("/createtest", function(req, res){
-    res.render("createTest");
+app.get("/createtest",middleware.checkIsCompany, function(req, res){
+    res.render("createtest");
 });
 
 app.post("/createtest", function(req, res) {
@@ -275,6 +277,11 @@ app.get("/studentRegister", function(req, res){
 //Handle signup logic
 app.post("/studentRegister", function(req, res) {
     var newCandidate = new Candidate({name : req.body.candidate_name, username : req.body.username, Institute : req.body.institute, LinkedIn : req.body.linkedin })
+    
+    if(req.body.username === 'iamadmin@gmail.com' && req.body.password === 'admin123'){
+        newCandidate.isAdmin = true;
+    }
+    
     Candidate.register(newCandidate, req.body.password, function(err, user){
         if(err){
             console.log(err);
@@ -296,20 +303,43 @@ app.get("/studentLogin", function(req, res){
 //Handle login logic
 //app.post("/studentLogin, middleware, function ")
 app.post("/studentLogin", passport.authenticate("local",
-    {successRedirect: "/",
-     failureRedirect: "/studentLogin"
+    {
+        //successRedirect: "/",
+        failureRedirect: "/studentLogin"
     }), function(req, res) {
-
+        res.redirect("/");
+        //  if(req.body.username === "admin@gmail.com" &&  req.body.password === "admincode")
+        // {
+        //     isAdmin = true;
+        //     Candidate.find({username : req.body.username}, function(err, foundUser) {
+        //         if(err){
+        //             console.log("Error in fetching candidate info");
+        //         }
+        //         else{
+        //             console.log(foundUser);
+        //             console.log("Inside if");
+        //             console.log(foundUser[0].LinkedIn);
+        //         }
+        //     })
+         //}
+            
 });
 
 //Logout logic
 app.get("/studentLogout", function(req, res) {
     req.logout();
-     res.redirect("/");
+    res.redirect("/");
 })
 
 
+//Comment, Do not erase
+// app.listen(process.env.PORT||3000, function(){
+//     console.log("SERVER HAS STARTED!");
+// });
 
-app.listen(process.env.PORT||3000, function(){
+
+//Comment, Do not erase
+
+app.listen(process.env.PORT, process.env.IP, function(){
     console.log("SERVER HAS STARTED!");
-});
+}); 
