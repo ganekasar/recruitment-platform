@@ -4,6 +4,8 @@ var test;
 
 var testSchema = new Schema({
     name: String,
+    duration:Number,  //Added these extra things to make the timer
+    date:Date,
     candidates : [
         {
             type : mongoose.Schema.Types.ObjectId,

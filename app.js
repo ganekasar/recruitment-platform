@@ -9,7 +9,7 @@ var express         = require("express"),
     Question        = require("./models/question"),
     Response        = require("./models/response"),
     middleware      = require("./middleware");
-    
+
 var app = express();
 app.set('view engine', 'ejs');
 var isAdmin = false;
@@ -45,7 +45,7 @@ app.use(function(req, res, next){
     res.locals.error     = req.flash("error");
     res.locals.success  = req.flash("success");
     next();                             //execute next code
-    
+
 })
 
 app.get("/", function(req, res){
@@ -70,9 +70,17 @@ app.get("/createtest",middleware.checkIsCompany, function(req, res){
 
 app.post("/createtest", function(req, res) {
     const name = req.body.name;
+    let duration =req.body.duration;
+    let date = req.body.date;
+    let time = req.body.time;
+    date = date + "T"+time+":00Z";
+    console.log((date));
+    console.log(typeof(duration));
 
     const item = new Test({
-        name: name
+        name: name,
+        duration:duration,
+        date:date
     });
 
     item.save();
@@ -162,14 +170,22 @@ app.get("/:id/test", function(req, res){
       name:req.params.id
     });
 //  console.log(test);
-
+    const id = test.name;
     Question.find({test : test.name}, function(err, foundQuestions) {
         if(err) {
             console.log("Error occured while fetching data from database!");
             res.redirect("/createtest");
         } else {
   //        console.log("Sudhanshu");
-            res.render("test", {foundQuestions: foundQuestions});
+            Test.find({_id:id},function(err,foundD){
+              if(err){
+                console.log(err);
+              }
+              else{
+              var date= foundD[0].date;
+              var duration=foundD[0].duration;
+              res.render("test", {foundQuestions: foundQuestions,date:date,duration:duration});}
+            });
         }
     });
 });
@@ -251,25 +267,61 @@ app.get("/viewtest",function(req,res){
   });
 });
 
-app.get("/:id/viewtest", function(req, res){
+app.get("/:id/viewtest", function(req, res){ //Test can only be viewed if the test is at that time
 
     const test = new Test({
       name:req.params.id
     });
   const id = test.name;
-    Question.find({test : id}, function(err, foundQuestions) {
-        if(err) {
-            console.log("Error occured while fetching data from database!");
-            console.log(err);
-            res.redirect("/createtest");
-        } else {
-  //        console.log("Sudhanshu");
-            res.render("test", {foundQuestions: foundQuestions});
-        }
-    });
+  var dateExam;
+  var duration;
+  let one =9;
+  Test.find({_id:id},function(err,dateFound){
+    if(err){
+      console.log("Error from test db about date");
+      console.log(err);
+    }
+    else{
+       //console.log(dateFound);
+       var date_diff_indays = function(date1,date2) { //Function to return seconds difference between current date and exam date
+          dt1 = new Date(date1);
+          dt2 = new Date(date2);
+          return ((Date.UTC(dt2.getFullYear(), dt2.getMonth(), dt2.getDate(),dt2.getHours(),dt2.getMinutes(),dt2.getSeconds()) - Date.UTC(dt1.getFullYear(), dt1.getMonth(), dt1.getDate(),dt1.getHours(),dt1.getMinutes(),dt1.getSeconds()) ) /(1000));
+       }
+       dateExam=dateFound[0].date;
+       dateExam.setMinutes(dateExam.getMinutes()-330);
+       var curDate = new Date();
+       curDate= curDate.toISOString();
+       dateExam = dateExam.toISOString();
+       var timeDiff  = date_diff_indays(dateExam,curDate);
+       duration=dateFound[0].duration;
+       duration = duration * 60;
+       // console.log(duration);
+       // console.log(date);
+       // console.log(curDate);
+       // console.log(timeDiff);
+       if(duration >= timeDiff && timeDiff>=0){
+         Question.find({test : id}, function(err, foundQuestions) {
+           if(err) {
+               console.log("Error occured while fetching data from database!");
+               console.log(err);
+               res.redirect("/createtest");
+           } else {
+              //console.log("Sudhanshu");
+               let sendDate = Date.parse(dateExam); //sending in milliseconds (Time passed since I think 1970)
+               res.render("test", {foundQuestions: foundQuestions,date:sendDate,duration:duration});
+           }
+       });
+       }else{
+        //console.log((date));
+        //console.log(d);
+        var availDateObject = new Date(Date.parse(dateExam));
+        res.render("testCurrentlyNot",{availableAt:availDateObject});
+       }
+       //date = JSON.stringify(date);
+    }
+  });
 });
-
-
 
 //AUTH ROUTES//
 
@@ -282,11 +334,11 @@ app.get("/studentRegister", function(req, res){
 //Handle signup logic
 app.post("/studentRegister", function(req, res) {
     var newCandidate = new Candidate({name : req.body.candidate_name, username : req.body.username, Institute : req.body.institute, LinkedIn : req.body.linkedin })
-    
+
     if(req.body.username === 'iamadmin@gmail.com' && req.body.password === 'admin123'){
         newCandidate.isAdmin = true;
     }
-    
+
     Candidate.register(newCandidate, req.body.password, function(err, user){
         if(err){
             console.log(err);
@@ -315,7 +367,7 @@ app.post("/studentLogin", passport.authenticate("local",
         failureFlash: true,
         successFlash: 'Welcome back!'
     }), function(req, res) {
-        
+
         //res.redirect("/");
         //  if(req.body.username === "admin@gmail.com" &&  req.body.password === "admincode")
         // {
@@ -331,7 +383,7 @@ app.post("/studentLogin", passport.authenticate("local",
         //         }
         //     })
          //}
-            
+
 });
 
 //Logout logic
@@ -343,13 +395,13 @@ app.get("/studentLogout", function(req, res) {
 
 
 //Comment, Do not erase
-// app.listen(process.env.PORT||3000, function(){
-//     console.log("SERVER HAS STARTED!");
-// });
+app.listen(process.env.PORT||3000, function(){
+    console.log("SERVER HAS STARTED!");
+});
 
 
 //Comment, Do not erase
 
-app.listen(process.env.PORT, process.env.IP, function(){
-    console.log("SERVER HAS STARTED!");
-}); 
+// app.listen(process.env.PORT, process.env.IP, function(){
+//     console.log("SERVER HAS STARTED!");
+// });
