@@ -5,7 +5,8 @@ var CandidateSchema = new mongoose.Schema({
     name : String, 
     username : String,  //Email actually
     Institute : String,
-    LinkedIn : String
+    LinkedIn : String,
+    isAdmin : {type: Boolean, default: false}
 });
 
 CandidateSchema.plugin(passportLocalMongoose);

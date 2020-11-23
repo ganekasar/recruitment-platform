@@ -1,11 +1,16 @@
 <%- include("partials/header") %>
+    <div class="container">
+    <h1>Test will be displayed here!</h1> <hr><hr>
+    <h3 id="remtime">Time Remaining: </h3>
+    </div>
+    <% var totalTime=date+duration; console.log(totalTime); %> <!-- Timer need to be added -->
 
     <div class="container">
-        <h1>Test will be displayed here!</h1>
+        <!-- <h1>Test will be displayed here!</h1> -->
         <form action="/test" method="POST">
           <% console.log(foundQuestions) %>
             <% for(var i=0; i<foundQuestions.length; i++) { %>
-                <h3> <%= foundQuestions[i]._id %> </h3>
+                <!-- <h3> <%= //foundQuestions[i]._id %> </h3> -->
                 <h2> <%= i+1 %>. <%= foundQuestions[i].question %> </h2>
 
                     <p>Select one option</p>

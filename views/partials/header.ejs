@@ -12,11 +12,7 @@
 
 //
 
-.container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+
 
 
 .first-column {
@@ -102,6 +98,12 @@
     margin-right : 50px;
 }
 
+.flash-message{
+    margin-left: 80px;
+    margin-right: 80px;
+    font-size : 120%;
+}
+
 </style>
 
     </head>
@@ -115,8 +117,15 @@
                 </div>
                 <ul class="nav navbar-nav">
                     <li><a href="/company">Companies</a></li>
-                    <li><a href="/login">Login</a></li>
-                    <li><a href="/signup">Signup</a></li>
+                    <% if(!currentUser){ %>
+                        <li><a href="/studentLogin">Login</a></li>
+                        <li><a href="/studentRegister">Signup</a></li>
+                    <% } else { %>
+                        <li><a href="#">Signed in as <%= currentUser.name%></a></li>
+                        <li><a href="/studentLogout">Logout</a></li>
+                    <% }%>
+                    
+                    
                 </ul>
                 <form class="form-inline my-2 my-lg-0 nav navbar-nav navbar-right">
                   <div style="margin-top:8px">
@@ -125,6 +134,21 @@
                   </div>
 
                 </form>
-             </div>
+            </div>
 
         </nav>
+        
+        <div class="flash-message">
+            <% if(error && error.length > 0){ %>
+            <div class="alert alert-danger" role="alert">
+                <%= error %>
+            </div>
+            <% } %>
+            <% if(success && success.length > 0){ %>
+            <div class="alert alert-success" role="alert">
+                <%= success %>
+            </div>
+            <% } %>
+        </div>
+        
+        <div>
