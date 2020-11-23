@@ -1,20 +1,20 @@
-var express         = require("express"),
-    mongoose        = require("mongoose"),
-    passport        = require("passport"),
-    LocalStrategy   = require("passport-local"),
-    bodyParser      = require("body-parser"),
-    flash           = require("connect-flash"),
-    Candidate       = require("./models/candidate"),
-    Test            = require("./models/test"),
-    Question        = require("./models/question"),
-    Response        = require("./models/response"),
-    middleware      = require("./middleware");
+const express         = require("express"),
+      mongoose        = require("mongoose"),
+      passport        = require("passport"),
+      LocalStrategy   = require("passport-local"),
+      bodyParser      = require("body-parser"),
+      flash           = require("connect-flash"),
+      Candidate       = require("./models/candidate"),
+      Test            = require("./models/test"),
+      Question        = require("./models/question"),
+      Response        = require("./models/response"),
+      middleware      = require("./middleware");
 
-var app = express();
+const app = express();
+
 app.set('view engine', 'ejs');
+
 var isAdmin = false;
-
-
 
 app.use(bodyParser.urlencoded({extended : true}));
 app.use(express.static(__dirname+"/public"));
@@ -23,7 +23,7 @@ mongoose.connect("mongodb://localhost/project",{useNewUrlParser: true,useUnified
 
 
 //Passport Configuration
-app.use(require("express-session")({
+app.use(require("express-session") ({
     secret : "This is a secret page",
     resave : false,
     saveUninitialized : false
@@ -35,49 +35,44 @@ app.use(flash());
 passport.use(new LocalStrategy(Candidate.authenticate()));
 
 
-
 passport.serializeUser(Candidate.serializeUser());
 passport.deserializeUser(Candidate.deserializeUser());
 
 //Middleware For currently logged in user
-app.use(function(req, res, next){
+app.use(function(req, res, next) {
     res.locals.currentUser = req.user;  //This is available to all the templates
-    res.locals.error     = req.flash("error");
-    res.locals.success  = req.flash("success");
+    res.locals.error       = req.flash("error");
+    res.locals.success     = req.flash("success");
     next();                             //execute next code
+});
 
-})
-
-app.get("/", function(req, res){
+app.get("/", function(req, res) {
     console.log(req.user);
-    res.render("landing.ejs");
-})
+    res.render("landing");
+});
 
 app.get("/company", function(req, res){
     res.render("companyLanding.ejs");
-})
-
-
-
+});
 
 //TEST ROUTES
 
-
-
-app.get("/createtest",middleware.checkIsCompany, function(req, res){
+app.get("/createtest", middleware.checkIsCompany, function(req, res) {
     res.render("createtest");
 });
 
 app.post("/createtest", function(req, res) {
     const name = req.body.name;
-    let duration =req.body.duration;
+    let duration = req.body.duration;
     let date = req.body.date;
     let time = req.body.time;
-    date = date + "T"+time+":00Z";
+
+    date = date + "T" + time + ":00Z";
+
     console.log((date));
     console.log(typeof(duration));
 
-    const item = new Test({
+    const item = new Test( {
         name: name,
         duration:duration,
         date:date
@@ -93,11 +88,11 @@ app.get("/selecttest", function(req, res) {
         if(err) {
             res.redirect("/createtest");
         } else {
-          if(foundTests ==0){
-            res.render("notest");
-          }else{
-          res.render("selecttest", {foundTests : foundTests});
-          }
+            if(foundTests ==0){
+                res.render("notest");
+            } else {
+                res.render("selecttest", {foundTests : foundTests});
+            }
         }
     });
 });
@@ -134,8 +129,6 @@ app.get("/:id/managetest", function(req, res) {
     //         // });
     //     }
     // });
-
-
 
     //res.render("managetest");
 });
@@ -358,7 +351,7 @@ app.post("/studentRegister", function(req, res) {
         })
 
     });
-})
+});
 
 //Show login form
 app.get("/studentLogin", function(req, res){
@@ -399,7 +392,6 @@ app.get("/studentLogout", function(req, res) {
     req.flash("success", "Logged out successfully!");
     res.redirect("/");
 })
-
 
 //Comment, Do not erase
 app.listen(process.env.PORT||3000, function(){
