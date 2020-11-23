@@ -9,6 +9,7 @@ middlewareObj.checkIsCompany = function(req, res, next){
         if(req.user.isAdmin)
             next();
         else{
+            req.flash("error", "Authorization Denied!!");
             console.log('You are not authorized!');
             res.redirect("back");
         }
@@ -16,7 +17,7 @@ middlewareObj.checkIsCompany = function(req, res, next){
     }
     else
     {
-        console.log('Log in first');
+        req.flash("error", "You need to log in to do that!");
         res.redirect("/studentLogin");
     }
 }

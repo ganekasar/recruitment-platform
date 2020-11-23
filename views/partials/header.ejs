@@ -12,11 +12,7 @@
 
 //
 
-.container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+
 
 
 .first-column {
@@ -102,6 +98,12 @@
     margin-right : 50px;
 }
 
+.flash-message{
+    margin-left: 80px;
+    margin-right: 80px;
+    font-size : 120%;
+}
+
 </style>
 
     </head>
@@ -135,3 +137,18 @@
             </div>
 
         </nav>
+        
+        <div class="flash-message">
+            <% if(error && error.length > 0){ %>
+            <div class="alert alert-danger" role="alert">
+                <%= error %>
+            </div>
+            <% } %>
+            <% if(success && success.length > 0){ %>
+            <div class="alert alert-success" role="alert">
+                <%= success %>
+            </div>
+            <% } %>
+        </div>
+        
+        <div>

@@ -3,12 +3,13 @@ var express         = require("express"),
     passport        = require("passport"),
     LocalStrategy   = require("passport-local"),
     bodyParser      = require("body-parser"),
+    flash           = require("connect-flash"),
     Candidate       = require("./models/candidate"),
     Test            = require("./models/test"),
     Question        = require("./models/question"),
     Response        = require("./models/response"),
     middleware      = require("./middleware");
-
+    
 var app = express();
 app.set('view engine', 'ejs');
 var isAdmin = false;
@@ -30,6 +31,7 @@ app.use(require("express-session")({
 
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(flash());
 passport.use(new LocalStrategy(Candidate.authenticate()));
 
 
@@ -40,7 +42,10 @@ passport.deserializeUser(Candidate.deserializeUser());
 //Middleware For currently logged in user
 app.use(function(req, res, next){
     res.locals.currentUser = req.user;  //This is available to all the templates
+    res.locals.error     = req.flash("error");
+    res.locals.success  = req.flash("success");
     next();                             //execute next code
+    
 })
 
 app.get("/", function(req, res){
@@ -285,10 +290,11 @@ app.post("/studentRegister", function(req, res) {
     Candidate.register(newCandidate, req.body.password, function(err, user){
         if(err){
             console.log(err);
-            return res.render("studentRegister");
+            return res.render("studentRegister", {error: err.message});
         }
         //res.redirect("/");
         passport.authenticate("local")(req,res,function(){
+            req.flash("success", "Welcome " + newCandidate.name + "!");
             res.redirect("/");
         })
 
@@ -304,10 +310,13 @@ app.get("/studentLogin", function(req, res){
 //app.post("/studentLogin, middleware, function ")
 app.post("/studentLogin", passport.authenticate("local",
     {
-        //successRedirect: "/",
-        failureRedirect: "/studentLogin"
+        successRedirect: "/",
+        failureRedirect: "/studentLogin",
+        failureFlash: true,
+        successFlash: 'Welcome back!'
     }), function(req, res) {
-        res.redirect("/");
+        
+        //res.redirect("/");
         //  if(req.body.username === "admin@gmail.com" &&  req.body.password === "admincode")
         // {
         //     isAdmin = true;
@@ -328,6 +337,7 @@ app.post("/studentLogin", passport.authenticate("local",
 //Logout logic
 app.get("/studentLogout", function(req, res) {
     req.logout();
+    req.flash("success", "Logged out successfully!");
     res.redirect("/");
 })
 
