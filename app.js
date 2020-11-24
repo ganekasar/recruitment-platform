@@ -215,7 +215,7 @@ app.get("/:id/test", function(req, res) {
                     console.log("Error occured while fetching data from database!");
                     res.redirect("/createtest");
                 } else {
-        
+
                     Test.find({_id:id},function(err,foundD) {
                       if(err) {
                         console.log(err);
@@ -223,11 +223,6 @@ app.get("/:id/test", function(req, res) {
                       else {
                         var date = foundD[0].date;
                         var duration = foundD[0].duration;
-
-                        console.log("Below");
-                        
-                        console.log(foundCodingPbs);
-
                         res.render("test", {foundQuestions : foundQuestions, date : date, duration : duration, foundCodingProblems : foundCodingPbs});
                         }
                     });
@@ -242,7 +237,7 @@ app.post("/test", function(req, res){
     var pref1 = "q";
     var pref2 = "ques";
     var answers = [];
-    
+
     for(var i = 0; i < len; i++) {
         var str1 = pref1.concat(i.toString());
         var ans = req.body[str1];
@@ -347,7 +342,7 @@ app.get("/:id/viewtest", function(req, res){ //Test can only be viewed if the te
        // console.log(curDate);
        // console.log(timeDiff);
        if(duration >= timeDiff && timeDiff>=0){
-         
+
         Question.find({test : id}, function(err, foundQuestions) {
            if(err) {
                console.log("Error occured while fetching data from database!");
@@ -356,13 +351,13 @@ app.get("/:id/viewtest", function(req, res){ //Test can only be viewed if the te
            } else {
               //console.log("Sudhanshu");
                let sendDate = Date.parse(dateExam); //sending in milliseconds (Time passed since I think 1970)
-               
+
                Codingproblem.find({test : test.name}, function(err, foundCodingPbs) {
                 if(err) {
                     console.log("Error occured while fetching data from database!");
                     res.redirect("/createtest");
                 } else {
-        
+
                     Test.find({_id:id},function(err,foundD) {
                       if(err) {
                         console.log(err);
@@ -370,11 +365,6 @@ app.get("/:id/viewtest", function(req, res){ //Test can only be viewed if the te
                       else {
                         var date = foundD[0].date;
                         var duration = foundD[0].duration;
-
-                        console.log("Below");
-                        
-                        console.log(foundCodingPbs);
-
                         res.render("test", {foundQuestions : foundQuestions, date : date, duration : duration, foundCodingProblems : foundCodingPbs});
                         }
                     });
