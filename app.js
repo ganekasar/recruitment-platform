@@ -178,6 +178,61 @@ app.post("/managetest", function(req, res) {
     //res.redirect("/"+test.name+"/managetest");
 })
 
+app.get("/sharetestlink",function(req,res){
+    res.render("sharetestlink");
+    const test = req.params.id;
+
+    console.log(test);
+    
+});
+app.post("/sharetestlink",function(req,res){
+   res.render("sharetestlink");
+    var nodemailer=require( 'nodemailer');
+    var cron=require('node-cron');
+    var schedule = require('node-schedule');
+    var year=parseInt(req.body.year);
+    var month=parseInt(req.body.month);
+    var day=parseInt(req.body.day);
+    var hour=parseInt(req.body.hour);
+    var minute=parseInt(req.body.minute);
+    var second=parseInt(req.body.second);
+    
+    var date = new Date(year,month, day, hour, minute, second);
+    var transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: 'shivanijadhav1310@gmail.com',
+          pass: 'Prasad@123'
+        }
+      });
+      var maillist=[
+        'sdjadhav13102000@gmail.com',
+      
+        
+      ];
+      var mailOptions = {
+        from: 'shivanijadhav1310@gmail.com',
+        to: maillist,
+        subject: 'Sending Email using Node.js',
+        text: 'That was easy!'
+      };
+    
+    var j = schedule.scheduleJob(date, function(){
+      console.log('The world is going to end today.');
+      transporter.sendMail(mailOptions, function (error, info) {
+        if (error) {
+            console.log(error);
+        } else {
+            console.log('Email sent: ' + info.response);
+        }
+    
+   
+   
+});
+});
+});
+
+
 app.get("/signup", function(req, res){
     res.render("signup");
 });
