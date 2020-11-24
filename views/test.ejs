@@ -36,7 +36,7 @@
       }
    </script>
 
-    <div class="container">
+    <div onselectstart="return false" class="container">
         <!-- <h1>Test will be displayed here!</h1> -->
         <form action="/test" method="POST">
           <% console.log(foundQuestions) %>
@@ -62,11 +62,22 @@
 
             <button type="submit">Submit</button>
         </form>
+        <script type="text/javascript"> 
+            window.addEventListener('beforeunload', function (e) { 
+                e.preventDefault(); 
+                e.returnValue = 'Your changes '; 
+            });
+            document.addEventListener('visibilitychange', function() {
+    document.hidden; // whether or not the tab is visible
+}); 
+
+
+        </script> 
 
     </div>
 
     <% if(foundCodingProblems.length > 0) { %>
-    <div>
+    <div onselectstart="return false">
         <div>
           <% for( var i =0 ;i< foundCodingProblems.length;i++){ %>
             <div>
@@ -89,6 +100,17 @@
                 <iframe src="https://leetcode.com/playground/EDWEfbTD/shared" frameBorder="0" width="50%" height="100%"></iframe>
             </div>
         </div>
+        <script type="text/javascript"> 
+            window.addEventListener('beforeunload', function (e) { 
+                e.preventDefault(); 
+                e.returnValue = 'Your changes '; 
+            });
+            document.addEventListener('visibilitychange', function() {
+    document.hidden; // whether or not the tab is visible
+}); 
+
+
+        </script> 
     </div>
     <% }} %>
 
