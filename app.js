@@ -8,6 +8,7 @@ const express         = require("express"),
       Test            = require("./models/test"),
       Question        = require("./models/question"),
       Response        = require("./models/response"),
+      Codingproblem   = require("./models/codingproblem"),
       middleware      = require("./middleware");
 
 const app = express();
@@ -20,7 +21,6 @@ app.use(bodyParser.urlencoded({extended : true}));
 app.use(express.static(__dirname+"/public"));
 
 mongoose.connect("mongodb://localhost/project",{useNewUrlParser: true,useUnifiedTopology: true});
-
 
 //Passport Configuration
 app.use(require("express-session") ({
@@ -134,26 +134,47 @@ app.get("/:id/managetest", function(req, res) {
 });
 
 app.post("/managetest", function(req, res) {
-    const ques = req.body.question;
-    const opt1 = req.body.option1;
-    const opt2 = req.body.option2;
-    const opt3 = req.body.option3;
-    const opt4 = req.body.option4;
-    const ans = req.body.answer;
-    const test=req.body.test;
+    const type = req.body.type;
+    const test = req.body.test;
 
-    const item = new Question({
-        question: ques,
-        option1: opt1,
-        option2: opt2,
-        option3: opt3,
-        option4: opt4,
-        answer: ans,
-        test: req.body.test
-    });
+    if(type === "mcq") {
+        const ques = req.body.question;
+        const opt1 = req.body.option1;
+        const opt2 = req.body.option2;
+        const opt3 = req.body.option3;
+        const opt4 = req.body.option4;
+        const ans  = req.body.answer;
 
-    item.save();
-    res.render("addedsuccessfully",{testname:test});
+        const item = new Question({
+            question: ques,
+            option1: opt1,
+            option2: opt2,
+            option3: opt3,
+            option4: opt4,
+            answer: ans,
+            test: req.body.test
+        });
+
+        item.save();
+    } else {
+        const ques = req.body.ques;
+        const input = req.body.input;
+        const output = req.body.output;
+        const constraints = req.body.constraints;
+        const sample = req.body.sample;
+
+        const item = new Codingproblem({
+            question: ques,
+            input: input,
+            output: output,
+            constraints: constraints,
+            sample: sample,
+            test: test
+        });
+
+        item.save();
+    }
+    res.render("addedsuccessfully",{testname : test});
     //res.redirect("/"+test.name+"/managetest");
 })
 
@@ -165,27 +186,52 @@ app.get("/login", function(req, res){
     res.render("login");
 });
 
-app.get("/:id/test", function(req, res){
+app.get("/:id/test", function(req, res) {
 
     const test = new Test({
       name:req.params.id
     });
-//  console.log(test);
+
     const id = test.name;
+
     Question.find({test : test.name}, function(err, foundQuestions) {
         if(err) {
             console.log("Error occured while fetching data from database!");
             res.redirect("/createtest");
         } else {
-  //        console.log("Sudhanshu");
-            Test.find({_id:id},function(err,foundD){
-              if(err){
-                console.log(err);
-              }
-              else{
-              var date= foundD[0].date;
-              var duration=foundD[0].duration;
-              res.render("test", {foundQuestions: foundQuestions,date:date,duration:duration});}
+
+            // Test.find({_id:id},function(err,foundD){
+            //   if(err){
+            //     console.log(err);
+            //   }
+            //   else {
+            //   var date= foundD[0].date;
+            //   var duration=foundD[0].duration;
+            //   }
+            // });
+
+            Codingproblem.find({test : test.name}, function(err, foundCodingPbs) {
+                if(err) {
+                    console.log("Error occured while fetching data from database!");
+                    res.redirect("/createtest");
+                } else {
+        
+                    Test.find({_id:id},function(err,foundD) {
+                      if(err) {
+                        console.log(err);
+                      }
+                      else {
+                        var date = foundD[0].date;
+                        var duration = foundD[0].duration;
+
+                        console.log("Below");
+                        
+                        console.log(foundCodingPbs);
+
+                        res.render("test", {foundQuestions : foundQuestions, date : date, duration : duration, foundCodingProblems : foundCodingPbs});
+                        }
+                    });
+                }
             });
         }
     });
@@ -301,7 +347,8 @@ app.get("/:id/viewtest", function(req, res){ //Test can only be viewed if the te
        // console.log(curDate);
        // console.log(timeDiff);
        if(duration >= timeDiff && timeDiff>=0){
-         Question.find({test : id}, function(err, foundQuestions) {
+         
+        Question.find({test : id}, function(err, foundQuestions) {
            if(err) {
                console.log("Error occured while fetching data from database!");
                console.log(err);
@@ -309,7 +356,32 @@ app.get("/:id/viewtest", function(req, res){ //Test can only be viewed if the te
            } else {
               //console.log("Sudhanshu");
                let sendDate = Date.parse(dateExam); //sending in milliseconds (Time passed since I think 1970)
-               res.render("test", {foundQuestions: foundQuestions,date:sendDate,duration:duration});
+               
+               Codingproblem.find({test : test.name}, function(err, foundCodingPbs) {
+                if(err) {
+                    console.log("Error occured while fetching data from database!");
+                    res.redirect("/createtest");
+                } else {
+        
+                    Test.find({_id:id},function(err,foundD) {
+                      if(err) {
+                        console.log(err);
+                      }
+                      else {
+                        var date = foundD[0].date;
+                        var duration = foundD[0].duration;
+
+                        console.log("Below");
+                        
+                        console.log(foundCodingPbs);
+
+                        res.render("test", {foundQuestions : foundQuestions, date : date, duration : duration, foundCodingProblems : foundCodingPbs});
+                        }
+                    });
+                }
+            });
+
+               //res.render("test", {foundQuestions: foundQuestions,date:sendDate,duration:duration});
            }
        });
        }else{

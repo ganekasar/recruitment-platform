@@ -3,7 +3,7 @@
     <h1>Test will be displayed here!</h1> <hr><hr>
     <h3 id="remtime">Time Remaining: </h3>
     </div>
-    <% var totalTime=date+duration; console.log(totalTime); %> <!-- Timer need to be added -->
+    <% var totalTime = date + duration; console.log(totalTime); %> <!-- Timer need to be added -->
 
     <div class="container">
         <!-- <h1>Test will be displayed here!</h1> -->
@@ -34,12 +34,30 @@
 
     </div>
 
-    <div class="container">
-        <iframe id="ifrm" src="https://www.skillstack.com/embedchallenges/?courseid=java21ssh&examplepath=echotest&challenge=1153&loggedin=false" width="100%" height="600"></iframe>
+    <% if(foundCodingProblems.length > 0) { %>
+    <div>
+        <div class="row">
+            <div>
+                <h3>Problem Statement</h3>
+                <h2> <%= foundCodingProblems[i].question %> </h2>
+                
+                <h3>Input Format</h3>
+                <h2> <%= foundCodingProblems[i].input %> </h2>
+                
+                <h3>Output Format</h3>
+                <h2> <%= foundCodingProblems[i].output %> </h2>
+                
+                <h3>Constraints</h3>
+                <h2> <%= foundCodingProblems[i].constraints %> </h2>
+                
+                <h3>Sample Test Cases</h3>
+                <h2> <%= foundCodingProblems[i].sample %> </h2>
+            </div>
+            <div>
+                <iframe src="https://leetcode.com/playground/EDWEfbTD/shared" frameBorder="0" width="50%" height="100%"></iframe>
+            </div>
+        </div>
     </div>
-
-    <div class="container">
-        <iframe src="https://leetcode.com/playground/An4ztXYb/shared" frameBorder="0" width="50%" height="50%"></iframe>
-    </div>
+    <% } %>
 
 <%- include("partials/footer") %>
