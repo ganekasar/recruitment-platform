@@ -278,6 +278,7 @@ app.get("/:id/test", function(req, res) {
                       else {
                         var date = foundD[0].date;
                         var duration = foundD[0].duration;
+                        duration=duration*60;
                         res.render("test", {foundQuestions : foundQuestions, date : date, duration : duration, foundCodingProblems : foundCodingPbs});
                         }
                     });
