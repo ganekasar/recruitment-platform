@@ -183,7 +183,7 @@ app.get("/sharetestlink",function(req,res){
     const test = req.params.id;
 
     console.log(test);
-    
+
 });
 app.post("/sharetestlink",function(req,res){
    res.render("sharetestlink");
@@ -196,7 +196,7 @@ app.post("/sharetestlink",function(req,res){
     var hour=parseInt(req.body.hour);
     var minute=parseInt(req.body.minute);
     var second=parseInt(req.body.second);
-    
+
     var date = new Date(year,month, day, hour, minute, second);
     var transporter = nodemailer.createTransport({
         service: 'gmail',
@@ -207,8 +207,8 @@ app.post("/sharetestlink",function(req,res){
       });
       var maillist=[
         'sdjadhav13102000@gmail.com',
-      
-        
+
+
       ];
       var mailOptions = {
         from: 'shivanijadhav1310@gmail.com',
@@ -216,7 +216,7 @@ app.post("/sharetestlink",function(req,res){
         subject: 'Sending Email using Node.js',
         text: 'That was easy!'
       };
-    
+
     var j = schedule.scheduleJob(date, function(){
       console.log('The world is going to end today.');
       transporter.sendMail(mailOptions, function (error, info) {
@@ -225,9 +225,9 @@ app.post("/sharetestlink",function(req,res){
         } else {
             console.log('Email sent: ' + info.response);
         }
-    
-   
-   
+
+
+
 });
 });
 });
@@ -420,6 +420,7 @@ app.get("/:id/viewtest", function(req, res){ //Test can only be viewed if the te
                       else {
                         var date = foundD[0].date;
                         var duration = foundD[0].duration;
+                        duration = duration * 60;
                         res.render("test", {foundQuestions : foundQuestions, date : date, duration : duration, foundCodingProblems : foundCodingPbs});
                         }
                     });

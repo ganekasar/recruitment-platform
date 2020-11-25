@@ -8,7 +8,7 @@
   <!-- Timer need to be added && multiplied by 1000 to convet into milliseconds-->
    <script>
       const changingId = document.getElementById('remtime');
-      var currentTime= Date.parse(new Date());
+      var currentTime= Date.parse(new Date())+(19800000);
       var durationOfExam= ((<%= totalTime %> - currentTime )/1000);
       setInterval(timer,1000);
       function timer(){
@@ -62,17 +62,17 @@
 
             <button type="submit">Submit</button>
         </form>
-        <script type="text/javascript"> 
-            window.addEventListener('beforeunload', function (e) { 
-                e.preventDefault(); 
-                e.returnValue = 'Your changes '; 
+        <script type="text/javascript">
+            window.addEventListener('beforeunload', function (e) {
+                e.preventDefault();
+                e.returnValue = 'Your changes ';
             });
             document.addEventListener('visibilitychange', function() {
     document.hidden; // whether or not the tab is visible
-}); 
+});
 
 
-        </script> 
+        </script>
 
     </div>
 
@@ -100,17 +100,17 @@
                 <iframe src="https://leetcode.com/playground/EDWEfbTD/shared" frameBorder="0" width="50%" height="100%"></iframe>
             </div>
         </div>
-        <script type="text/javascript"> 
-            window.addEventListener('beforeunload', function (e) { 
-                e.preventDefault(); 
-                e.returnValue = 'Your changes '; 
+        <script type="text/javascript">
+            window.addEventListener('beforeunload', function (e) {
+                e.preventDefault();
+                e.returnValue = 'Your changes ';
             });
             document.addEventListener('visibilitychange', function() {
     document.hidden; // whether or not the tab is visible
-}); 
+});
 
 
-        </script> 
+        </script>
     </div>
     <% }} %>
 
