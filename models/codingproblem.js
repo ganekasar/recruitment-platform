@@ -1,4 +1,3 @@
-
 const mongoose              = require("mongoose");
 const testSchema            = require("./test");
 const Schema                = mongoose.Schema;

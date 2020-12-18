@@ -1,0 +1,18 @@
+<%- include("partials/stuheader") %>
+<script type="text/javascript">
+  var st=<%- JSON.stringify(sendtest)%>;
+  var le=<%=sendtest.length%>;
+  console.log(le);
+  var sr=<%-JSON.stringify (stuid) %>
+</script>
+<% if(sendtest.length == 0){ %>
+  <h1>No Available Test</h1>
+<% } else {%>
+  <h1>Available Test</h1>
+<% } %>
+<% for(var i = 0; i < sendtest.length; i++) { %>
+    <h1> <%=sendtest[i].name%> </h1>
+    <br>
+    <a href='/<%= stuid %>/<%=sendtest[i].id%>/registerteststudent'>Register Here</a>
+<% } %>
+<%- include("partials/footer") %>

@@ -234,11 +234,11 @@ app.post("/sharetestlink",function(req,res){
 
 
 app.get("/signup", function(req, res){
-    res.render("signup");
+    res.render("signup");                     //Bhai savji ye kya hai
 });
 
 app.get("/login", function(req, res){
-    res.render("login");
+    res.render("login");                  //Bhai savji ye kya hai
 });
 
 app.get("/:id/test", function(req, res) {
@@ -279,7 +279,28 @@ app.get("/:id/test", function(req, res) {
                         var date = foundD[0].date;
                         var duration = foundD[0].duration;
                         duration=duration*60;
-                        res.render("test", {foundQuestions : foundQuestions, date : date, duration : duration, foundCodingProblems : foundCodingPbs});
+                        var myQuestions = [];
+                        for(var f=0;f<foundQuestions.length ; f++)
+                          {
+                            var question = foundQuestions[f].question;
+                            var  a= foundQuestions[f].option1;
+                            var  b= foundQuestions[f].option2;
+                            var  c= foundQuestions[f].option3;
+                            var  d= foundQuestions[f].option4;
+                            var correctAnswer= foundQuestions[f].answer;
+                            var ob={
+                            question:question,
+                            answers: {
+                              a: a,
+                              b: b,
+                              c: c,
+                              d: d
+                            },
+                            correctAnswer: correctAnswer
+                          };
+                          myQuestions.push(ob);
+                      }
+                        res.render("test", {foundQuestions : myQuestions, date : date, duration : duration, foundCodingProblems : foundCodingPbs});
                         }
                     });
                 }
@@ -422,7 +443,31 @@ app.get("/:id/viewtest", function(req, res){ //Test can only be viewed if the te
                         var date = foundD[0].date;
                         var duration = foundD[0].duration;
                         duration = duration * 60;
-                        res.render("test", {foundQuestions : foundQuestions, date : date, duration : duration, foundCodingProblems : foundCodingPbs});
+                        var myQuestions = [];
+                        for(var f=0;f<foundQuestions.length ; f++)
+                          {
+                            var question = foundQuestions[f].question;
+                            var  a= foundQuestions[f].option1;
+                            var  b= foundQuestions[f].option2;
+                            var  c= foundQuestions[f].option3;
+                            var  d= foundQuestions[f].option4;
+                            var correctAnswer= foundQuestions[f].answer;
+                            var ob={
+                            question:question,
+                            answers: {
+                              a: a,
+                              b: b,
+                              c: c,
+                              d: d
+                            },
+                            correctAnswer: correctAnswer
+                          };
+                          myQuestions.push(ob);
+                      }
+                      // for(var f=0;f<myQuestions.length;f++){
+                      //   console.log(myQuestions[f]);
+                      // }
+                        res.render("test", {foundQuestions : myQuestions, date : date, duration : duration, foundCodingProblems : foundCodingPbs});
                         }
                     });
                 }
@@ -441,6 +486,14 @@ app.get("/:id/viewtest", function(req, res){ //Test can only be viewed if the te
     }
   });
 });
+
+//student result
+app.post("/studentresult",function(req,res){
+  console.log(req.body.submit);
+  //Candidate.find({})
+  //window.onbeforeunload = function() { return "Your work will be lost."; };
+  res.render("studentresult",{result:req.body.submit});
+})
 
 //AUTH ROUTES//
 
@@ -466,7 +519,32 @@ app.post("/studentRegister", function(req, res) {
         //res.redirect("/");
         passport.authenticate("local")(req,res,function(){
             req.flash("success", "Welcome " + newCandidate.name + "!");
-            res.redirect("/");
+            if(req.body.username === 'iamadmin@gmail.com' && req.body.password === 'admin123'){
+                res.redirect("/companyLanding");   //admin hai toh company page
+            }
+            else{
+              var sendtest=[];
+              var todaydate=(new Date()).toISOString();
+              var date_diff_indays = function(date1,date2) { //Function to return seconds difference between current date and exam date
+                 dt1 = new Date(date1);
+                 dt2 = new Date(date2);
+                 return ((Date.UTC(dt2.getFullYear(), dt2.getMonth(), dt2.getDate(),dt2.getHours(),dt2.getMinutes(),dt2.getSeconds()) - Date.UTC(dt1.getFullYear(), dt1.getMonth(), dt1.getDate(),dt1.getHours(),dt1.getMinutes(),dt1.getSeconds()) ) /(1000));
+              }
+              Test.find({},function(err,foundtest){
+               if(err){
+                 console.log(err);
+               }
+               else{
+                 for(var i=0;i<  foundtest.length ;i++){
+                  var timediff  = date_diff_indays(foundtest[i].date.toISOString(),todaydate);
+                  if(timediff <0){
+                    sendtest.push(foundtest[i]);
+                  }
+                 }
+               }
+               res.render("studentlanding",{sendtest:sendtest,stuid:req.body.username});
+             });
+            }
         })
 
     });
@@ -474,36 +552,123 @@ app.post("/studentRegister", function(req, res) {
 
 //Show login form
 app.get("/studentLogin", function(req, res){
-    res.render("studentLogin.ejs");
+    res.render("studentLogin");
 });
 
 //Handle login logic
 //app.post("/studentLogin, middleware, function ")
 app.post("/studentLogin", passport.authenticate("local",
     {
-        successRedirect: "/",
         failureRedirect: "/studentLogin",
         failureFlash: true,
         successFlash: 'Welcome back!'
     }), function(req, res) {
+         if(req.body.username === "iamadmin@gmail.com" &&  req.body.password === "admin123")
+        {
+              res.render("companyLanding");   //redirect to student landing page
+        }else{
+          // To show the test on students page
+          var sendtest=[];
+          var todaydate=(new Date()).toISOString();
+          var date_diff_indays = function(date1,date2) { //Function to return seconds difference between current date and exam date
+             dt1 = new Date(date1);
+             dt2 = new Date(date2);
+             return ((Date.UTC(dt2.getFullYear(), dt2.getMonth(), dt2.getDate(),dt2.getHours(),dt2.getMinutes(),dt2.getSeconds()) - Date.UTC(dt1.getFullYear(), dt1.getMonth(), dt1.getDate(),dt1.getHours(),dt1.getMinutes(),dt1.getSeconds()) ) /(1000));
+          }
+          Test.find({},function(err,foundtest){
+           if(err){
+             console.log(err);
+           }
+           else{
+             Candidate.find({username:req.body.username},function(err,student){
 
-        //res.redirect("/");
-        //  if(req.body.username === "admin@gmail.com" &&  req.body.password === "admincode")
-        // {
-        //     isAdmin = true;
-        //     Candidate.find({username : req.body.username}, function(err, foundUser) {
-        //         if(err){
-        //             console.log("Error in fetching candidate info");
-        //         }
-        //         else{
-        //             console.log(foundUser);
-        //             console.log("Inside if");
-        //             console.log(foundUser[0].LinkedIn);
-        //         }
-        //     })
-         //}
+               for(var i=0;i<  foundtest.length ;i++){
+                var timediff  = date_diff_indays(foundtest[i].date.toISOString(),todaydate);
+                if(timediff < 0){
+                  for(var c=0 ; c< foundtest[i].candidates.length;c++){
+                    if((foundtest[i].candidates[c].toString() == student[0]._id.toString())){
+                        break;
+                    }
+                  }
+                  if(c==foundtest[i].candidates.length){
+                    sendtest.push(foundtest[i]);
+                  }
+                }
+               }
+              // console.log(sendtest);
+              res.render("studentlanding",{sendtest:sendtest,stuid:req.body.username});
+             });
+         }
+       });
+}});
 
+//student register for the test
+app.get("/:stuid/:testid/registerteststudent",function(req,res){
+  Candidate.find({username:req.params.stuid},function(err,student){
+    if(err){
+      console.log(err);
+    }else{
+      Test.findById(req.params.testid,function (err,test){
+        test.candidates.push(student[0]._id);
+        test.save();
+      });
+    }
+  });
+
+  var sendtest=[];
+  var todaydate=(new Date()).toISOString();
+  var date_diff_indays = function(date1,date2) { //Function to return seconds difference between current date and exam date
+     dt1 = new Date(date1);
+     dt2 = new Date(date2);
+     return ((Date.UTC(dt2.getFullYear(), dt2.getMonth(), dt2.getDate(),dt2.getHours(),dt2.getMinutes(),dt2.getSeconds()) - Date.UTC(dt1.getFullYear(), dt1.getMonth(), dt1.getDate(),dt1.getHours(),dt1.getMinutes(),dt1.getSeconds()) ) /(1000));
+  }
+  Test.find({},function(err,foundtest){
+   if(err){
+     console.log(err);
+   }
+   else{
+     Candidate.find({username:req.params.stuid},function(err,student){
+
+       for(var i=0;i<  foundtest.length ;i++){
+        var timediff  = date_diff_indays(foundtest[i].date.toISOString(),todaydate);
+        if(timediff < 0){
+          for(var c=0 ; c< foundtest[i].candidates.length;c++){
+            if((foundtest[i].candidates[c].toString() == student[0]._id.toString())){
+                break;
+            }
+          }
+          if(c==foundtest[i].candidates.length){
+            sendtest.push(foundtest[i]);
+          }
+        }
+       }
+       console.log(sendtest);
+       res.render("studentlanding",{sendtest:sendtest,stuid:req.params.stuid});
+     });
+ }
 });
+});
+
+//studentlanding logic
+
+app.get("/studentlanding",function(req,res){
+  res.render("studentlanding");
+})
+
+//studentprofile logic
+app.get("/studentprofile",function(req,res){
+  res.render("studentprofile");
+})
+
+//studentresult logic
+app.get("/studentpastresult",function(req,res){
+  res.render("studentpastresult");
+})
+
+//futuretest logic
+app.get("/futuretest",function(req,res){
+  res.render("futuretest");
+})
 
 //Logout logic
 app.get("/studentLogout", function(req, res) {
