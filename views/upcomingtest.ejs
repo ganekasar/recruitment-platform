@@ -129,15 +129,17 @@
             </div>
 
         </nav>
-
-        <h1>Profile</h1>
-        <% var a= (pro); %>
-        <h3>Name : <%= a[0].name %></h3>
-        <h3>Email: <%= a[0].username%></h3>
-        <h3>Institute: <%=a[0].Institute %></h3>
-        <h3>LinkedIn: <%=a[0].LinkedIn %></h3>
-        <form action="/<%= stuid %>/deleteprofile" method="post">
-          <button type="submit" name="delbutton">Delete Profile</button>
-        </form>
-
+        <%for(let o=0;o<pro.length;o++){%>
+          <% for(let y=0;y<pro[o].length;y++){ %>
+            <% if(y==0){ %>
+              <h1> <%= pro[o][y] %> </h1>
+            <% }else if(y==1){ %>
+              <h3>Date: <%= (pro[o][y])%></h3>
+              <br>
+          <% } else if(y==2){%>
+            <h3>Duration:  <%=(pro[o][y])%> minutes</h3>
+            <br>
+        <%}else{%>
+            <h3><a href="/<%= stuid %>/<%=(pro[o][y]) %>/viewtest">Start</a></h3><br>
+        <%}}}%>
 <%- include("partials/footer") %>

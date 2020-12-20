@@ -7,12 +7,15 @@ var CandidateSchema = new mongoose.Schema({
     Institute : String,
     LinkedIn : String,
     isAdmin : {type: Boolean, default: false},
-    result:[[{
+    result:[Number],
+    submitted:[{
       type : mongoose.Schema.Types.ObjectId,
       ref : "testSchema",
-    },{
-      res:Number
-    }]]
+    }],
+    yesorno:
+    [{
+      type: Boolean, default: false
+    }]                                          // result ka baki hai
 });
 
 CandidateSchema.plugin(passportLocalMongoose);

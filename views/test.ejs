@@ -117,9 +117,21 @@ li a:hover:not(.active) {
 <div id="results"></div>
 
 <% date= Date.parse(date); %>
-<% var totalTime=date+(duration*1000); console.log(date); %>
+<% var totalTime=date+(duration*1000);  %>
 
 <script type="text/javascript">
+  // once submitted cannot resubmitted
+  console.log(true.toString());
+  // Candidate.findOne({username:stuid},function(err,stude){
+  //   for(let i =0;i<stude.submitted.length;i++){
+  //     if(stude.submitted[i][0].toString()== testid.toString())
+  //     {
+  //         if(stude.submitted[i][1].toString()==true.toString())
+  //         {
+  //         }
+  //     }
+  //     }
+  //   });
   const changingId = document.getElementById('remtime');
   var currentTime= Date.parse(new Date())+(19800000);
   var durationOfExam= ((<%= totalTime %> - currentTime )/1000);
@@ -224,6 +236,8 @@ li a:hover:not(.active) {
           numCorrect++;
         }
       });
+      // to set submitted to true
+
       document.getElementById('submit').setAttribute("value",numCorrect);
       document.getElementById('submit').setAttribute("name","submit");
       document.getElementById('submit').setAttribute("form","form");
@@ -290,5 +304,5 @@ li a:hover:not(.active) {
 
 </script>
 
-<form id="form" action="/studentresult" method="post">
+<form id="form" action="/<%= testid %>/<%= stuid %>/studentresult" method="post">
 </form>
