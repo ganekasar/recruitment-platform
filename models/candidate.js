@@ -2,11 +2,20 @@ var mongoose = require("mongoose");
 var passportLocalMongoose = require("passport-local-mongoose");
 
 var CandidateSchema = new mongoose.Schema({
-    name : String, 
+    name : String,
     username : String,  //Email actually
     Institute : String,
     LinkedIn : String,
-    isAdmin : {type: Boolean, default: false}
+    isAdmin : {type: Boolean, default: false},
+    result:[Number],
+    submitted:[{
+      type : mongoose.Schema.Types.ObjectId,
+      ref : "testSchema",
+    }],
+    yesorno:
+    [{
+      type: Boolean, default: false
+    }]                                          // result ka baki hai
 });
 
 CandidateSchema.plugin(passportLocalMongoose);

@@ -1,117 +1,308 @@
-<%- include("partials/header") %>
-  <div class="container">
-  <h1>Test will be displayed here!</h1> <hr><hr>
-  <h3 id="remtime"></h3>
-  </div>
-  <% date= Date.parse(date); %>
-  <% var totalTime=date+(duration*1000); console.log(date); %>
-  <!-- Timer need to be added && multiplied by 1000 to convet into milliseconds-->
-   <script>
-      const changingId = document.getElementById('remtime');
-      var currentTime= Date.parse(new Date())+(19800000);
-      var durationOfExam= ((<%= totalTime %> - currentTime )/1000);
-      setInterval(timer,1000);
-      function timer(){
-        let hour=Math.floor(durationOfExam/3600);
-        let minutes=Math.floor((durationOfExam/60)%60);
-        let seconds=durationOfExam % 60;
-        seconds = seconds < 10 ?'0'+seconds : seconds;
-        minutes = minutes < 10 ?'0'+minutes : minutes;
-        changingId.innerHTML="Time Remaining: "+hour+":"+ minutes+":"+seconds;
-        durationOfExam--;
-        if(durationOfExam === 0){
-          let myForm = document.querySelector("#test");
-          let submitButton = myForm.querySelector("#main-submit");
-          if (myForm.requestSubmit) {
-            alert("Test is Over!!!");
-            if (submitButton) {
-              myForm.requestSubmit(submitButton);
-            } else {
-              myForm.requestSubmit();
-            }
-          } else {
-            myForm.submit();
-          }
+<head>
+  <style>
+    @import url(https://fonts.googleapis.com/css?family=Work+Sans:300,600);
+
+body{
+  font-size: 20px;
+  font-family: 'Work Sans', sans-serif;
+  color: #333;
+  font-weight: 300;
+  text-align: center;
+  background-color: #f8f6f0;
+}
+h1{
+  font-weight: 300;
+  margin: 0px;
+  padding: 10px;
+  font-size: 25px;
+  background-color: #444;
+  color: #fff;
+}
+.question{
+  font-size: 35px;
+  margin-bottom: 10px;
+}
+.answers {
+  margin-bottom: 20px;
+  text-align: left;
+  display: inline-block;
+}
+.answers label{
+  display: block;
+  margin-bottom: 10px;
+}
+button{
+  font-family: 'Work Sans', sans-serif;
+  font-size: 15px;
+  background-color: #279;
+  color: #fff;
+  border: 0px;
+  border-radius: 3px;
+  padding: 13px;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+button:hover{
+  background-color: #38a;
+}
+
+#remtime{
+  margin-left:80%;
+}
+.slide{
+  position: absolute;
+  left: 230px;
+  top: 0px;
+  width: 50%;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+.active-slide{
+  opacity: 1;
+  z-index: 2;
+}
+.quiz-container{
+  position: relative;
+  height: 200px;
+  margin-top: 40px;
+  margin-left:200px;
+}
+body {
+  margin: 0;
+}
+
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  width: 11%;
+  background-color: #f1f1f1;
+  position: fixed;
+  height: 100%;
+  overflow: auto;
+}
+
+li a {
+  display: block;
+  color: #000;
+  padding: 8px 16px;
+  text-decoration: none;
+}
+
+li a.active {
+  background-color: #4CAF50;
+  color: white;
+}
+
+li a:hover:not(.active) {
+  background-color: #555;
+  color: white;
+}
+  </style>
+</head>
+<ul>
+  <br>
+  <li>Question Palette</li><br>
+  <li id="que"></li>
+</ul>
+<h1>TesT</h1>
+<h3 id="remtime"></h3>
+<div class="quiz-container">
+  <div id="quiz"></div>
+</div>
+<button id="previous">Previous Question</button>
+<button id="next">Next Question</button>
+<button id="submit">Submit Quiz</button>
+<div id="results"></div>
+
+<% date= Date.parse(date); %>
+<% var totalTime=date+(duration*1000);  %>
+
+<script type="text/javascript">
+  // once submitted cannot resubmitted
+  console.log(true.toString());
+  // Candidate.findOne({username:stuid},function(err,stude){
+  //   for(let i =0;i<stude.submitted.length;i++){
+  //     if(stude.submitted[i][0].toString()== testid.toString())
+  //     {
+  //         if(stude.submitted[i][1].toString()==true.toString())
+  //         {
+  //         }
+  //     }
+  //     }
+  //   });
+  const changingId = document.getElementById('remtime');
+  var currentTime= Date.parse(new Date())+(19800000);
+  var durationOfExam= ((<%= totalTime %> - currentTime )/1000);
+  setInterval(timer,1000);
+  function timer(){
+    let hour=Math.floor(durationOfExam/3600);
+    let minutes=Math.floor((durationOfExam/60)%60);
+    let seconds=durationOfExam % 60;
+    seconds = seconds < 10 ?'0'+seconds : seconds;
+    minutes = minutes < 10 ?'0'+minutes : minutes;
+    changingId.innerHTML="Time Remaining: "+hour+":"+ minutes+":"+seconds;
+    durationOfExam--;
+    if(durationOfExam === 0){
+      let myForm = document.querySelector("form");
+      let submitButton = myForm.querySelector("submit");
+      if (myForm.requestSubmit) {
+        alert("Test is Over!!!");
+        if (submitButton) {
+          myForm.requestSubmit(submitButton);
+        } else {
+          myForm.requestSubmit();
         }
+      } else {
+        myForm.submit();
       }
-   </script>
+    }
+  }
+  let currentSlide = 0;
+  (function(){
+    // Functions
+    function buildQuiz(){
+      // variable to store the HTML output
+      const output = [];
 
-    <div onselectstart="return false" class="container">
-        <!-- <h1>Test will be displayed here!</h1> -->
-        <form action="/test" method="POST">
-          <% console.log(foundQuestions) %>
-            <% for(var i=0; i<foundQuestions.length; i++) { %>
-                <!-- <h3> <%= //foundQuestions[i]._id %> </h3> -->
-                <h2> <%= i+1 %>. <%= foundQuestions[i].question %> </h2>
+      // for each question...
+      var cu=1;
+      myQuestions.forEach(
+        (currentQuestion, questionNumber) => {
 
-                    <p>Select one option</p>
-                    <label for="A">A. </label>
-                    <input type="radio" id="A" name="q<%=i%>" value="A"> <%= foundQuestions[i].option1 %> <br>
-                    <label for="B">B. </label>
-                    <input type="radio" id="B" name="q<%=i%>" value="B">  <%= foundQuestions[i].option2 %> <br>
-                    <label for="C">C. </label>
-                    <input type="radio" id="C" name="q<%=i%>" value="C">  <%= foundQuestions[i].option3 %> <br>
-                    <label for="D">D. </label>
-                    <input type="radio" id="D" name="q<%=i%>" value="D">  <%= foundQuestions[i].option4 %> <br>
+          // variable to store the list of possible answers
+          const answers = [];
 
-                    <input type="text" name="ques<%=i%>" value="<%=foundQuestions[i]._id%>" hidden>
+          // and for each available answer...
+          for(letter in currentQuestion.answers){
 
-            <% } %>
+            // ...add an HTML radio button
+            answers.push(
+              `<label>
+                <input type="radio" name="question${questionNumber}" value="${letter}">
+                ${letter} :
+                ${currentQuestion.answers[letter]}
+              </label>`
+            );
+          }
 
-            <input type="number" name="length" value="<%=foundQuestions.length%>" hidden>
+          // add this question and its answers to the output
+          output.push(
+            `<div class="slide">
+              <div class="question"> ${cu}. ${currentQuestion.question} </div>
+              <div class="answers"> ${answers.join("")} </div>
+            </div>`
+          );
+          cu++;
+        }
+      );
+      for(var i=0;i< <%=foundQuestions.length %>;i++){
+        var btn = document.createElement("button");
+        btn.innerHTML = "Question"+(i+1);
+        btn.id = ""+(i+1);
+        btn.onclick = giveSlides;
+        document.getElementById("que").appendChild(btn);
+        //document.getElementById(btn.id).setAttribute("onclick",'giveSlides(id)');
+      }
+      function giveSlides(){
+        var c =parseInt(event.srcElement.id);
+        c--;
+        console.log(c);
+        showTheSlide(c);
+      }
+      // finally combine our output list into one string of HTML and put it on the page
+      quizContainer.innerHTML = output.join('');
+    }
+    function showResults(){
 
-            <button type="submit">Submit</button>
-        </form>
-        <script type="text/javascript">
-            window.addEventListener('beforeunload', function (e) {
-                e.preventDefault();
-                e.returnValue = 'Your changes ';
-            });
-            document.addEventListener('visibilitychange', function() {
-    document.hidden; // whether or not the tab is visible
-});
+      // gather answer containers from our quiz
+      const answerContainers = quizContainer.querySelectorAll('.answers');
+
+      // keep track of user's answers
+      let numCorrect = 0;
+
+      // for each question...
+      myQuestions.forEach( (currentQuestion, questionNumber) => {
+
+        // find selected answer
+        const answerContainer = answerContainers[questionNumber];
+        const selector = `input[name=question${questionNumber}]:checked`;
+         const userAnswer = (answerContainer.querySelector(selector) || {}).value;
+
+        // if answer is correct
+        if(userAnswer === currentQuestion.correctAnswer){
+          // add to the number of correct answers
+          numCorrect++;
+        }
+      });
+      // to set submitted to true
+
+      document.getElementById('submit').setAttribute("value",numCorrect);
+      document.getElementById('submit').setAttribute("name","submit");
+      document.getElementById('submit').setAttribute("form","form");
+      // show number of correct answers out of total
+      //resultsContainer.innerHTML = `${numCorrect} out of ${myQuestions.length}`;
+    }
+
+    function showSlide(n) {
+      slides[currentSlide].classList.remove('active-slide');
+      slides[n].classList.add('active-slide');
+      currentSlide = n;
+      if(currentSlide === 0){
+        previousButton.style.display = 'none';
+      }
+      else{
+        previousButton.style.display = 'inline-block';
+      }
+      if(currentSlide === slides.length-1){
+        nextButton.style.display = 'none';
+        submitButton.style.display = 'inline-block';
+      }
+      else{
+        nextButton.style.display = 'inline-block';
+        submitButton.style.display = 'none';
+      }
+    }
+
+    function showNextSlide() {
+      showSlide(currentSlide + 1);
+    }
+
+    function showPreviousSlide() {
+      showSlide(currentSlide - 1);
+    }
+    function showTheSlide(givenSlide){
+      //console.log(givenSlide);
+      showSlide(givenSlide);
+    }
 
 
-        </script>
+    // Variables
+    const quizContainer = document.getElementById('quiz');
+    const resultsContainer = document.getElementById('results');
+    const submitButton = document.getElementById('submit');
+    <%= console.log(foundQuestions); %>
+    var myQuestions=<%- JSON.stringify(foundQuestions) %>;
+    // Kick things off
+    buildQuiz();
 
-    </div>
-
-    <% if(foundCodingProblems.length > 0) { %>
-    <div onselectstart="return false">
-        <div>
-          <% for( var i =0 ;i< foundCodingProblems.length;i++){ %>
-            <div>
-                <h3>Problem Statement</h3>
-                <h2> <%= foundCodingProblems[i].question %> </h2>
-
-                <h3>Input Format</h3>
-                <h2> <%= foundCodingProblems[i].input %> </h2>
-
-                <h3>Output Format</h3>
-                <h2> <%= foundCodingProblems[i].output %> </h2>
-
-                <h3>Constraints</h3>
-                <h2> <%= foundCodingProblems[i].constraints %> </h2>
-
-                <h3>Sample Test Cases</h3>
-                <h2> <%= foundCodingProblems[i].sample %> </h2>
-            </div>
-            <div>
-                <iframe src="https://leetcode.com/playground/EDWEfbTD/shared" frameBorder="0" width="50%" height="100%"></iframe>
-            </div>
-        </div>
-        <script type="text/javascript">
-            window.addEventListener('beforeunload', function (e) {
-                e.preventDefault();
-                e.returnValue = 'Your changes ';
-            });
-            document.addEventListener('visibilitychange', function() {
-    document.hidden; // whether or not the tab is visible
-});
+    // Pagination
+    const previousButton = document.getElementById("previous");
+    const nextButton = document.getElementById("next");
+    const slides = document.querySelectorAll(".slide");
 
 
-        </script>
-    </div>
-    <% }} %>
+    // Show the first slide
+    showSlide(currentSlide);
 
-<%- include("partials/footer") %>
+    // Event listeners
+    submitButton.addEventListener('click', showResults);
+    previousButton.addEventListener("click", showPreviousSlide);
+    nextButton.addEventListener("click", showNextSlide);
+  })();
+
+</script>
+
+<form id="form" action="/<%= testid %>/<%= stuid %>/studentresult" method="post">
+</form>

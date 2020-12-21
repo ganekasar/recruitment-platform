@@ -1,4 +1,3 @@
-
 var mongoose              = require("mongoose");
 var questionsSchema       = require("./question");
 const Schema = mongoose.Schema;
