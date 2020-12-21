@@ -18,12 +18,9 @@ app.set('view engine', 'ejs');
 var isAdmin = false;
 
 app.use(bodyParser.urlencoded({extended : true}));
-app.use(express.static(__dirname+"/public"));
+app.use(express.static(__dirname + "/public"));
 
-//mongoose.connect("mongodb://http://c92624abf8c4.ngrok.io/project",{useNewUrlParser: true,useUnifiedTopology: true});
-//mongodb://admin-ganesh:<pass_word>3@cluster0.sfavf.mongodb.net/yelp_camp
-
-mongoose.connect("mongodb://localhost/project",{useNewUrlParser: true,useUnifiedTopology: true});
+mongoose.connect("mongodb://localhost/project", {useNewUrlParser: true, useUnifiedTopology: true});
 
 //Passport Configuration
 app.use(require("express-session") ({
@@ -230,9 +227,6 @@ app.post("/sharetestlink",function(req,res){
         } else {
             console.log('Email sent: ' + info.response);
         }
-
-
-
 });
 });
 });
