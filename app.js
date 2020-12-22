@@ -51,10 +51,10 @@ app.get("/", function(req, res) {
     res.render("landing");
 });
 
-app.get("/company", function(req, res){
+app.get("/company", middleware.checkIsCompany, function(req, res){
     res.render("companyLanding.ejs");
 });
-app.get("/companyLanding", function(req, res){
+app.get("/companyLanding", middleware.checkIsCompany, function(req, res){
     res.render("companyLanding.ejs");
 });
 //TEST ROUTES
@@ -529,10 +529,6 @@ app.get("/:stuid/:id/viewtest", function(req, res){ //Test can only be viewed if
        var timeDiff  = date_diff_indays(dateExam,curDate);
        duration=dateFound[0].duration;
        duration = duration * 60;
-       // console.log(duration);
-       // console.log(date);
-       // console.log(curDate);
-       // console.log(timeDiff);
        if(duration >= timeDiff && timeDiff>=0){
 
         Question.find({test : id}, function(err, foundQuestions) {
@@ -606,10 +602,12 @@ app.get("/:stuid/:id/viewtest", function(req, res){ //Test can only be viewed if
 app.post("/:testid/:stuid/studentresult",function(req,res){
   console.log(req.body.submit);
   console.log("Sudhaanh");
-
+  var marks=req.body.submit;
+  if(req.body.submit ==  null)
+    marks=0;
   Candidate.updateOne(
     { username: req.params.stuid },
-    { $push: { result: req.body.submit } },
+    { $push: { result: marks } },
     function(err, result) {
       if (err) {
         console.log(err);
@@ -681,7 +679,9 @@ app.post("/studentRegister", function(req, res) {
                else{
                  for(var i=0;i<  foundtest.length ;i++){
                   var timediff  = date_diff_indays(foundtest[i].date.toISOString(),todaydate);
-                  if(timediff <0){
+                  var dur=foundtest[i].duration;
+                  dur=dur*60;
+                  if(timediff < dur){
                     sendtest.push(foundtest[i]);
                   }
                  }
@@ -724,11 +724,14 @@ app.post("/studentLogin", passport.authenticate("local",
              console.log(err);
            }
            else{
+             console.log("pp");
+             console.log(foundtest);
              Candidate.find({username:req.body.username},function(err,student){
-
                for(var i=0;i<  foundtest.length ;i++){
                 var timediff  = date_diff_indays(foundtest[i].date.toISOString(),todaydate);
-                if(timediff < 0){
+                var dur=foundtest[i].duration;
+                dur=dur*60;
+                if(timediff < dur){
                   for(var c=0 ; c< foundtest[i].candidates.length;c++){
                     if((foundtest[i].candidates[c].toString() == student[0]._id.toString())){
                         break;
@@ -783,12 +786,10 @@ app.get("/:stuid/:testid/registerteststudent",function(req,res){
        for(var i=0;i<  foundtest.length ;i++){
          if(foundtest[i]._id.toString()!=req.params.testid.toString())
         {var timediff  = date_diff_indays(foundtest[i].date.toISOString(),todaydate);
-        if(timediff < 0){
+          var dur=foundtest[i].duration;
+          dur=dur*60;
+          if(timediff < dur){
           for(var c=0 ; c< foundtest[i].candidates.length;c++){
-            // console.log(100);
-            // console.log(foundtest[i].candidates[c].toString());
-            // console.log(100);
-            // console.log(student[0]._id.toString());
             if((foundtest[i].candidates[c].toString() == student[0]._id.toString())){
                 break;
             }
@@ -821,12 +822,14 @@ app.get("/:stuid/studentlanding",function(req,res){
    }
    else{
      Candidate.find({username:req.params.stuid},function(err,student){
-
        for(var i=0;i<  foundtest.length ;i++){
         var timediff  = date_diff_indays(foundtest[i].date.toISOString(),todaydate);
-        if(timediff < 0){
+        var dur=foundtest[i].duration;
+        dur=dur*60;
+        if(timediff < dur){
           for(var c=0 ; c< foundtest[i].candidates.length;c++){
             if((foundtest[i].candidates[c].toString() == student[0]._id.toString())){
+              console.log(foundtest[i]);
                 break;
             }
           }
@@ -835,7 +838,7 @@ app.get("/:stuid/studentlanding",function(req,res){
           }
         }
        }
-       console.log(sendtest);
+       //console.log(sendtest);
        res.render("studentlanding",{sendtest:sendtest,pro:student,stuid:req.params.stuid});
 
      });

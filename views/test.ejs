@@ -99,43 +99,155 @@ li a:hover:not(.active) {
   background-color: #555;
   color: white;
 }
+body:fullscreen {
+  color: green;
+  width: 100vw;
+  height: 100vh;
+}
+
+body:-webkit-full-screen {
+  color: green;
+  width: 100vw;
+  height: 100vh;
+}
+
+body:-moz-full-screen {
+  color: green;
+  width: 100vw;
+  height: 100vh;
+}
+
+body:-ms-fullscreen {
+  color: green;
+  width: 100vw;
+  height: 100vh;
+}
   </style>
 </head>
+<body id="body">
 <ul>
   <br>
   <li>Question Palette</li><br>
   <li id="que"></li>
 </ul>
-<h1>TesT</h1>
-<h3 id="remtime"></h3>
-<div class="quiz-container">
-  <div id="quiz"></div>
-</div>
-<button id="previous">Previous Question</button>
-<button id="next">Next Question</button>
+<h1>TesT</h1 >
+  <h3 style="align=center; color:red;" id="time"></h3>
+<h3 id="remtime"></h3 >
+<div class="quiz-container" >
+  <div id="quiz"></div >
+</div >
+<button id="previous">Previous Question</button >
+<button id="next">Next Question</button >
 <button id="submit">Submit Quiz</button>
+<button id="start">Start Test</button>
+<button id="full">FullScreen</button>
 <div id="results"></div>
-
-<% date= Date.parse(date); %>
-<% var totalTime=date+(duration*1000);  %>
-
+<% date= Date.parse(date);%>
+<% var totalTime=date+(duration*1000); %>
 <script type="text/javascript">
-  // once submitted cannot resubmitted
-  console.log(true.toString());
-  // Candidate.findOne({username:stuid},function(err,stude){
-  //   for(let i =0;i<stude.submitted.length;i++){
-  //     if(stude.submitted[i][0].toString()== testid.toString())
-  //     {
-  //         if(stude.submitted[i][1].toString()==true.toString())
-  //         {
-  //         }
-  //     }
-  //     }
-  //   });
+        function fullscreen()
+        {
+          let elem = document.querySelector("body");
+          if (!document.fullscreenElement) {
+            elem.requestFullscreen().catch(err => {
+              alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+              console.log(err);
+            });
+          } else {
+            document.exitFullscreen();
+          }
+        }
+      //  let myVar;
+        var second=10;
+        const escapepress = document.getElementById('time');
+        // function fullscreenstoptimer()
+        // {
+        //   escapepress.style.display="none";
+        //   let elem = document.querySelector("body");
+        //   if (!document.fullscreenElement) {
+        //     elem.requestFullscreen().catch(err => {
+        //       alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+        //       console.log(err);
+        //     });
+        //   } else {
+        //     document.exitFullscreen();
+        //   }
+        // }
+        var num=1;
+        const fullquiz = document.getElementById('full');
+        fullquiz.style.display = 'none';
+        //fullquiz.addEventListener("click",fullscreenstoptimer);
+        document.addEventListener('fullscreenchange', (event) => {
+          var myVar;
+          if (!document.fullscreenElement) {
+            alert("Outside the FullScreen Mode!!!! Your Test is over");
+            //showResults();
+              let myForm = document.querySelector("form");
+              let submitButton = myForm.querySelector("submit");
+              if (myForm.requestSubmit) {
+                if (submitButton) {
+                  myForm.requestSubmit(submitButton);
+                } else {
+                  myForm.requestSubmit();
+                }
+              } else {
+                myForm.submit();
+              }
+            // alert("Exiting this mode will submit your test in 10 seconds. And doing this more than 2 times will automatically submit the test.");
+            // if(num==2){
+            //   let myForm = document.querySelector("form");
+            //   let submitButton = myForm.querySelector("submit");
+            //   if (myForm.requestSubmit) {
+            //     alert("Test is Over!!!");
+            //     if (submitButton) {
+            //       myForm.requestSubmit(submitButton);
+            //     } else {
+            //       myForm.requestSubmit();
+            //     }
+            //   } else {
+            //     myForm.submit();
+            //   }
+            // }
+            // fullquiz.style.display = "inline-block";
+            // num++;
+            // myvar=setInterval(escape,1000);
+            // function stop(){
+            //   console.log("ji");
+            //   console.log(myVar);
+            // }
+            // stop(myVar);
+            // console.log(myVar);
+            //
+            // function escape(){
+            //   escapepress.innerHTML="Time Remaining: "+second;
+            //   if(second==0){
+            //     let myForm = document.querySelector("form");
+            //     let submitButton = myForm.querySelector("submit");
+            //     if (myForm.requestSubmit) {
+            //       alert("Test is Over!!!");
+            //       if (submitButton) {
+            //         myForm.requestSubmit(submitButton);
+            //       } else {
+            //         myForm.requestSubmit();
+            //       }
+            //     } else {
+            //       myForm.submit();
+            //     }
+            //   }
+            //   second--;
+            // }
+          }
+        });
+        function preventBack() {
+            window.history.forward();
+        }
+        setTimeout("preventBack()", 0);
+        window.onunload = function () { null };
+</script>
+<script type="text/javascript">
   const changingId = document.getElementById('remtime');
   var currentTime= Date.parse(new Date())+(19800000);
   var durationOfExam= ((<%= totalTime %> - currentTime )/1000);
-  setInterval(timer,1000);
   function timer(){
     let hour=Math.floor(durationOfExam/3600);
     let minutes=Math.floor((durationOfExam/60)%60);
@@ -145,6 +257,7 @@ li a:hover:not(.active) {
     changingId.innerHTML="Time Remaining: "+hour+":"+ minutes+":"+seconds;
     durationOfExam--;
     if(durationOfExam === 0){
+      //showResults();
       let myForm = document.querySelector("form");
       let submitButton = myForm.querySelector("submit");
       if (myForm.requestSubmit) {
@@ -197,20 +310,7 @@ li a:hover:not(.active) {
           cu++;
         }
       );
-      for(var i=0;i< <%=foundQuestions.length %>;i++){
-        var btn = document.createElement("button");
-        btn.innerHTML = "Question"+(i+1);
-        btn.id = ""+(i+1);
-        btn.onclick = giveSlides;
-        document.getElementById("que").appendChild(btn);
-        //document.getElementById(btn.id).setAttribute("onclick",'giveSlides(id)');
-      }
-      function giveSlides(){
-        var c =parseInt(event.srcElement.id);
-        c--;
-        console.log(c);
-        showTheSlide(c);
-      }
+
       // finally combine our output list into one string of HTML and put it on the page
       quizContainer.innerHTML = output.join('');
     }
@@ -282,19 +382,44 @@ li a:hover:not(.active) {
     const quizContainer = document.getElementById('quiz');
     const resultsContainer = document.getElementById('results');
     const submitButton = document.getElementById('submit');
-    <%= console.log(foundQuestions); %>
+    const startquiz = document.getElementById('start');
+    startquiz.style.display = "inline-block";
+    submitButton.style.display = 'none';
+    startquiz.addEventListener("click",start);
     var myQuestions=<%- JSON.stringify(foundQuestions) %>;
+    function startquestionsss()
+    {for(var i=0;i< <%=foundQuestions.length %>;i++){
+      var btn = document.createElement("button");
+      btn.innerHTML = "Question"+(i+1);
+      btn.id = ""+(i+1);
+      btn.onclick = giveSlides;
+      document.getElementById("que").appendChild(btn);
+      //document.getElementById(btn.id).setAttribute("onclick",'giveSlides(id)');
+    }}
+    function giveSlides(){
+      var c =parseInt(event.srcElement.id);
+      c--;
+      //console.log(c);
+      showTheSlide(c);
+    }
     // Kick things off
+    //startquestionsss();
+    function start()
+    {
+      startquestionsss();
+      setInterval(timer,1000);
+      startquiz.style.display="none";
+      showSlide(currentSlide);
+      fullscreen();
+    }
     buildQuiz();
-
     // Pagination
     const previousButton = document.getElementById("previous");
     const nextButton = document.getElementById("next");
     const slides = document.querySelectorAll(".slide");
-
-
+    nextButton.style.display = 'none';
+    previousButton.style.display = 'none';
     // Show the first slide
-    showSlide(currentSlide);
 
     // Event listeners
     submitButton.addEventListener('click', showResults);
