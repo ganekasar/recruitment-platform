@@ -113,7 +113,7 @@
         <nav class="navbar navbar-default">
             <div class = "nav-style">
                 <div class="navbar-header" >
-                    <a href="/" class="navbar-brand">+ONE</a>
+                    <a href="#" class="navbar-brand">+ONE</a>
                 </div>
                 <ul class="nav navbar-nav">
                     <li><a href="/company">Companies</a></li>
@@ -124,8 +124,8 @@
                         <li><a href="#">Signed in as <%= currentUser.name%></a></li>
                         <li><a href="/studentLogout">Logout</a></li>
                     <% }%>
-                    
-                    
+
+
                 </ul>
                 <form class="form-inline my-2 my-lg-0 nav navbar-nav navbar-right">
                   <div style="margin-top:8px">
@@ -137,7 +137,7 @@
             </div>
 
         </nav>
-        
+
         <div class="flash-message">
             <% if(error && error.length > 0){ %>
             <div class="alert alert-danger" role="alert">
@@ -150,5 +150,5 @@
             </div>
             <% } %>
         </div>
-        
+
         <div>

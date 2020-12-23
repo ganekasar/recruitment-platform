@@ -85,7 +85,7 @@ app.post("/createtest", function(req, res) {
     res.render("testadded");
 });
 
-app.get("/selecttest", function(req, res) {
+app.get("/selecttest", middleware.checkIsCompany, function(req, res) {
     Test.find({}, function(err, foundTests) {
         if(err) {
             res.redirect("/createtest");
@@ -180,7 +180,7 @@ app.post("/managetest", function(req, res) {
     //res.redirect("/"+test.name+"/managetest");
 })
 
-app.get("/sharetestlink",function(req,res){
+app.get("/sharetestlink", middleware.checkIsCompany,function(req,res){
     res.render("sharetestlink");
     const test = req.params.id;
 
@@ -312,7 +312,7 @@ app.post("/test", function(req, res){
     res.render("worksfine");
 });
 
-app.get("/viewtest",function(req,res){
+app.get("/viewtest", middleware.checkIsCompany,function(req,res){
   Test.find({}, function(err, foundTests) {
       if(err) {
           res.redirect("/createtest");
@@ -892,7 +892,7 @@ app.get("/:stuid/upcomingtest",function(req,res){
 });
 
 // Viewing test results for the admin
-app.get(("/viewresults"),function(req,res){
+app.get(("/viewresults"), middleware.checkIsCompany,function(req,res){
   Test.find({},function(err,happenedtest){
     if(err){
       console.log(err);
