@@ -15,7 +15,8 @@ var CandidateSchema = new mongoose.Schema({
     yesorno:
     [{
       type: Boolean, default: false
-    }]                                          // result ka baki hai
+    }],
+    isLoggedIn : {type: Boolean, default: false}
 });
 
 CandidateSchema.plugin(passportLocalMongoose);

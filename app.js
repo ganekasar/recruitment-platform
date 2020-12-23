@@ -707,9 +707,17 @@ app.post("/studentLogin", passport.authenticate("local",
         failureFlash: true,
         successFlash: 'Welcome back!'
     }), function(req, res) {
-         if(req.body.username === "iamadmin@gmail.com" &&  req.body.password === "admin123")
+
+        //Logic to check if already logged in somewhere
+
+        if(req.body.isLoggedIn === true) {
+            req.logout();
+            res.redirect("/studentLogin");
+        }
+          
+        if(req.body.username === "iamadmin@gmail.com" &&  req.body.password === "admin123")
         {
-              res.render("companyLanding");   //redirect to student landing page
+            res.render("companyLanding");   //redirect to student landing page
         }else{
           // To show the test on students page
           var sendtest=[];
@@ -935,11 +943,13 @@ app.get("/:stuid/upcomingtest",function(req,res){
 
 //Logout logic
 app.get("/:stuid/studentLogout", function(req, res) { // for students
+    req.body.isLoggedIn = false;
     req.logout();
     req.flash("success", "Logged out successfully!");
     res.redirect("/");
 })
 app.get("/studentLogout", function(req, res) {    //for company
+  req.body.isLoggedIn = false;
     req.logout();
     req.flash("success", "Logged out successfully!");
     res.redirect("/");
