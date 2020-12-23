@@ -709,15 +709,16 @@ app.post("/studentLogin", passport.authenticate("local",
     }), function(req, res) {
 
         //Logic to check if already logged in somewhere
+        Candidate.finOne({username:req.body.username},function(err,stud){
+          if(stud.isLoggedIn === true) {
+              req.logout();
+              res.redirect("/studentLogin");
+          }
+        });
 
-        if(req.body.isLoggedIn === true) {
-            req.logout();
-            res.redirect("/studentLogin");
-        }
-        
         Candidate.updateOne({username: req.body.username}, {$set: {isLoggedIn: true}});
         //req.body.isLoggedIn = true;
-          
+
         if(req.body.username === "iamadmin@gmail.com" &&  req.body.password === "admin123")
         {
             res.render("companyLanding");   //redirect to student landing page
@@ -946,7 +947,7 @@ app.get("/:stuid/upcomingtest",function(req,res){
 
 //Logout logic
 app.get("/:stuid/studentLogout", function(req, res) { // for students
-    Candidate.updateOne({username: req.params.stuid}, {$set: {isLoggedIn: false}});    
+    Candidate.updateOne({username: req.params.stuid}, {$set: {isLoggedIn: false}});
     //req.body.isLoggedIn = false;
     req.logout();
     req.flash("success", "Logged out successfully!");
