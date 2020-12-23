@@ -709,7 +709,7 @@ app.post("/studentLogin", passport.authenticate("local",
     }), function(req, res) {
 
         //Logic to check if already logged in somewhere
-        Candidate.finOne({username:req.body.username},function(err,stud){
+        Candidate.findOne({username:req.body.username},function(err,stud){
           if(stud.isLoggedIn === true) {
               req.logout();
               res.redirect("/studentLogin");
