@@ -714,6 +714,8 @@ app.post("/studentLogin", passport.authenticate("local",
             req.logout();
             res.redirect("/studentLogin");
         }
+
+        req.body.isLoggedIn = true;
           
         if(req.body.username === "iamadmin@gmail.com" &&  req.body.password === "admin123")
         {
