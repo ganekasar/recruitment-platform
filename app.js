@@ -299,7 +299,7 @@ app.get("/:id/test", function(req, res) {
                           };
                           myQuestions.push(ob);
                       }
-                        res.render("test", {foundQuestions : myQuestions, date : date, duration : duration, foundCodingProblems : foundCodingPbs});
+                        res.render("oldtest", {foundQuestions : myQuestions, date : date, duration : duration, foundCodingProblems : foundCodingPbs});
                         }
                     });
                 }
@@ -309,65 +309,7 @@ app.get("/:id/test", function(req, res) {
 });
 
 app.post("/test", function(req, res){
-    const len = req.body.length;
-    var pref1 = "q";
-    var pref2 = "ques";
-    var answers = [];
-
-    for(var i = 0; i < len; i++) {
-        var str1 = pref1.concat(i.toString());
-        var ans = req.body[str1];
-        var str2 = pref2.concat(i.toString());
-        var ques = req.body[str2];
-        console.log(ques);
-        answers.push(ans);
-
-        Question.findById({_id : ques}, function(err, foundQuestion) {
-            if(err) {
-                res.redirect("/test");
-            } else {
-                const item = new Response({
-                    answer: ans,
-                    question: foundQuestion
-                });
-
-                item.save();
-
-                //res.render("testsubmit");
-            }
-        })
-
-
-        //var str2 = pref2.concat(i.toString());
-        //var ques_id = req.body[str2];
-
-        //console.log(ques_id);
-    }
-
-    Question.find({}, function(err, foundQuestions) {
-        if(err) {
-            console.log("Error occured while fetching data from database!");
-            res.redirect("/createtest");
-        } else {
-            var score = 0;
-
-            for(var i = 0; i < foundQuestions.length; i++) {
-                if(foundQuestions[i].answer === answers[i]) {
-                    score = score + 1;
-                }
-            }
-
-            console.log(score);
-
-            res.render("testsubmit", {score: score});
-        }
-    });
-
-    //console.log(req.body.);
-
-    //console.log(ans);
-
-    //res.render("testsubmit");
+    res.render("worksfine");
 });
 
 app.get("/viewtest",function(req,res){
@@ -466,7 +408,7 @@ app.get("/:id/viewtest", function(req, res){ //Test can only be viewed if the te
                       // for(var f=0;f<myQuestions.length;f++){
                       //   console.log(myQuestions[f]);
                       // }
-                        res.render("test", {testid:req.params.id,foundQuestions : myQuestions, date : date, duration : duration, foundCodingProblems : foundCodingPbs});
+                        res.render("oldtest", {testid:req.params.id,foundQuestions : myQuestions, date : date, duration : duration, foundCodingProblems : foundCodingPbs});
                         }
                     });
                 }
@@ -709,24 +651,24 @@ app.post("/studentLogin", passport.authenticate("local",
     }), function(req, res) {
 
         //Logic to check if already logged in somewhere
-        Candidate.findOne({username:req.body.username},function(err,stud){
-          console.log("onnn");
-          if(stud.isLoggedIn == true) {
-              req.logout();
-              res.redirect("/studentLogin");
-          }
-        });
-
-        Candidate.updateOne({username: req.body.username}, {$set: {isLoggedIn: true}},function(err){
-          console.log("err");
-          console.log(err);
-        });
         //req.body.isLoggedIn = true;
 
         if(req.body.username === "iamadmin@gmail.com" &&  req.body.password === "admin123")
         {
             res.render("companyLanding");   //redirect to student landing page
         }else{
+          Candidate.findOne({username:req.body.username},function(err,stud){
+            console.log("onnn");
+            if(stud.isLoggedIn == true) {
+                req.logout();
+                res.redirect("/studentLogin");
+            }
+          });
+
+          Candidate.updateOne({username: req.body.username}, {$set: {isLoggedIn: true}},function(err){
+            console.log("err");
+            console.log(err);
+          });
           // To show the test on students page
           var sendtest=[];
           var todaydate=(new Date()).toISOString();
@@ -947,7 +889,51 @@ app.get("/:stuid/upcomingtest",function(req,res){
       });
     }
   });
-})
+});
+
+// Viewing test results for the admin
+app.get(("/viewresults"),function(req,res){
+  Test.find({},function(err,happenedtest){
+    if(err){
+      console.log(err);
+    }else{
+      //  console.log(happenedtest[0]);
+        var newarr=[];
+        for(var i=0;i<happenedtest.length;i++){
+          var obj = [];
+          obj.push(happenedtest[i].candidates);
+          obj.push(happenedtest[i]._id);
+          obj.push(happenedtest[i].name);
+          newarr.push(obj);
+        }
+        res.render("viewresults",{test:newarr});
+    }
+  });
+});
+
+//Viewing test results for the admin of particular test
+app.get(("/:testid/results"),function(req,res){
+  Test.findOne({_id:req.params.testid},function(err,foundt){
+    var resul=[];
+    for(var t=0;t<foundt.candidates.length;t++){
+      Candidate.findOne({_id:foundt.candidates[t]},function(err,std){
+          var temp=[];
+          temp.push(std.name);
+          temp.push(std.username);
+          for(var f=0;f<std.submitted.length;f++){
+            if(std.submitted[f].toString()== req.params.testid.toString()){
+              temp.push(std.result[f]);
+              break;
+            }
+          }
+          resul.push(temp);
+          if(t == foundt.candidates.length && resul.length == t){
+            res.render("showresult",{result:resul,testid:req.params.testid,testname:foundt.name});
+          }
+      });
+    }
+  });
+});
 
 //Logout logic
 app.get("/:stuid/studentLogout", function(req, res) { // for students

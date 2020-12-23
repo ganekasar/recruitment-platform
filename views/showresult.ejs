@@ -1,0 +1,9 @@
+<%- include("partials/header") %>
+<h3>Test Result for <%=testname%></h3>
+<% if(result.length == 0){%>
+    <h1>No one has given the test.</h1>
+<%}%>
+  <% for(var i=0; i<result.length ;i++){ %>
+    <h3><%=i+1%>)   a) Name : <%=result[i][0]%> b) Username: <%=result[i][1]%> c) Marks: <%=result[i][2]%> </h3>
+  <% } %>
+<%- include("partials/footer") %>
