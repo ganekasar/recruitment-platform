@@ -140,7 +140,7 @@ body:-ms-fullscreen {
 <button id="next">Next Question</button >
 <button id="submit">Submit Quiz</button>
 <button id="start">Start Test</button>
-<button id="full">FullScreen</button>
+<h3 id="full">FullScreen</h3>
 <div id="results"></div>
 <% date= Date.parse(date);%>
 <% var totalTime=date+(duration*1000); %>
@@ -160,6 +160,8 @@ body:-ms-fullscreen {
       //  let myVar;
         var second=10;
         const escapepress = document.getElementById('time');
+        escapepress.innerHTML="Don't press 'Esc' key during the exam as it will end the test and your score will be zero."
+        escapepress.style.color="red";
         // function fullscreenstoptimer()
         // {
         //   escapepress.style.display="none";
@@ -409,6 +411,7 @@ body:-ms-fullscreen {
       startquestionsss();
       setInterval(timer,1000);
       startquiz.style.display="none";
+      escapepress.style.display = 'none';
       showSlide(currentSlide);
       fullscreen();
     }
