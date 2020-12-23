@@ -509,7 +509,7 @@ app.get("/:stuid/:id/viewtest", function(req, res){ //Test can only be viewed if
     }
   });
 
-  Test.find({_id:id},function(err,dateFound){
+  Test.find({_id:id},function(err, dateFound){
     if(err){
       console.log("Error from test db about date");
       console.log(err);
@@ -714,8 +714,9 @@ app.post("/studentLogin", passport.authenticate("local",
             req.logout();
             res.redirect("/studentLogin");
         }
-
-        req.body.isLoggedIn = true;
+        
+        Candidate.updateOne({username: req.body.username}, {$set: {isLoggedIn: true}});
+        //req.body.isLoggedIn = true;
           
         if(req.body.username === "iamadmin@gmail.com" &&  req.body.password === "admin123")
         {
@@ -945,7 +946,8 @@ app.get("/:stuid/upcomingtest",function(req,res){
 
 //Logout logic
 app.get("/:stuid/studentLogout", function(req, res) { // for students
-    req.body.isLoggedIn = false;
+    Candidate.updateOne({username: req.params.stuid}, {$set: {isLoggedIn: false}});    
+    //req.body.isLoggedIn = false;
     req.logout();
     req.flash("success", "Logged out successfully!");
     res.redirect("/");
