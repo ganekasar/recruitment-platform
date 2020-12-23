@@ -710,13 +710,17 @@ app.post("/studentLogin", passport.authenticate("local",
 
         //Logic to check if already logged in somewhere
         Candidate.findOne({username:req.body.username},function(err,stud){
-          if(stud.isLoggedIn === true) {
+          console.log("onnn");
+          if(stud.isLoggedIn == true) {
               req.logout();
               res.redirect("/studentLogin");
           }
         });
 
-        Candidate.updateOne({username: req.body.username}, {$set: {isLoggedIn: true}});
+        Candidate.updateOne({username: req.body.username}, {$set: {isLoggedIn: true}},function(err){
+          console.log("err");
+          console.log(err);
+        });
         //req.body.isLoggedIn = true;
 
         if(req.body.username === "iamadmin@gmail.com" &&  req.body.password === "admin123")
@@ -947,7 +951,9 @@ app.get("/:stuid/upcomingtest",function(req,res){
 
 //Logout logic
 app.get("/:stuid/studentLogout", function(req, res) { // for students
-    Candidate.updateOne({username: req.params.stuid}, {$set: {isLoggedIn: false}});
+    Candidate.updateOne({username: req.params.stuid}, {$set: {isLoggedIn: false}},function(err){
+      console.log(err);
+    });
     //req.body.isLoggedIn = false;
     req.logout();
     req.flash("success", "Logged out successfully!");
