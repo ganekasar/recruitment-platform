@@ -1,8 +1,8 @@
 <%- include("partials/header") %>
-    
+
     <div class="container">
         <h1>You can share test link here!</h1>
-            <form action="/sharetestlink" method="POST">
+            <form action="/<%= testid %>/sharetestlink" method="POST">
                 <div>
                     <input type="text" name="year" placeholder="Year">
                 </div>
@@ -21,13 +21,13 @@
                 <div>
                     <input type="text" name="second" placeholder="second">
                 </div>
-        
+
                 <div>
                     <button type="submit">Add</button>
                 </div>
             </form>
-            
+
 
     </div>
-    
+
 <%- include("partials/footer") %>

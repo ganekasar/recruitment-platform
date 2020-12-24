@@ -129,25 +129,33 @@
             </div>
 
         </nav>
-        <h5>Date Format: YYYY/MM/DD</h5>
-        <%for(let o=0;o<pro.length;o++){%>
-          <% for(let y=0;y<pro[o].length;y++){ %>
-            <% if(y==0){ %>
-              <h1> <%= pro[o][y] %> </h1>
-            <% }else if(y==1){ %>
-              <h3>Date: <%for(var i=0;i<19;i++){%>
-                <% if(i!=10){%>
 
-                <%=(pro[o][y][i])%>
-               <%}  else{ %>
-                 Time:
-             <%}} %> IST</h3>
-              <br>
-          <% } else if(y==2){%>
-            <h3>Duration:  <%=(pro[o][y])%> minutes</h3>
-            <br>
-        <%}else{%>
-            <h3><a href="/<%= stuid %>/<%=(pro[o][y]) %>/viewtest" >Start</a></h3><br>
-        <%}}}%>
+        <div class="flash-message">
+            <% if(error && error.length > 0){ %>
+            <div class="alert alert-danger" role="alert">
+                <%= error %>
+            </div>
+            <% } %>
+            <% if(success && success.length > 0){ %>
+            <div class="alert alert-success" role="alert">
+                <%= success %>
+            </div>
+            <% } %>
+        </div>
+
+        <div>
+
+
+  <h1>Sorry But The Test Is Currently Unavailable</h1>
+  <% var curDate=Date.parse(new Date()); var testDate=Date.parse(availableAt); %>
+  <% const options = {weekday: 'long',  year: 'numeric',  month: 'long',  day: 'numeric',  timeZoneName: 'long'} ;%>
+  <!-- Convertion to Date date format is as follows -->
+  <% var availDate=availableAt.toLocaleTimeString()+" "+availableAt.toLocaleDateString('en-GB',options); %>
+  <% if(curDate < testDate) {%> <!-- Test date/time is alreay passed  -->
+    <h2>But will Be Avaiable At <%= availDate %></h2>
+  <% } else {%>
+    <h2>Since Test is Already Over!!!!!!!!</h2>
+  <% }%>
+  
 
 <%- include("partials/footer") %>

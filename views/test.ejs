@@ -140,7 +140,6 @@ body:-ms-fullscreen {
 <button id="next">Next Question</button >
 <button id="submit">Submit Quiz</button>
 <button id="start">Start Test</button>
-<h3 id="full">FullScreen</h3>
 <div id="results"></div>
 <% date= Date.parse(date);%>
 <% var totalTime=date+(duration*1000); %>
@@ -175,9 +174,9 @@ body:-ms-fullscreen {
         //     document.exitFullscreen();
         //   }
         // }
-        var num=1;
-        const fullquiz = document.getElementById('full');
-        fullquiz.style.display = 'none';
+        //var num=1;
+        // const fullquiz = document.getElementById('full');
+        // fullquiz.style.display = 'none';
         //fullquiz.addEventListener("click",fullscreenstoptimer);
         document.addEventListener('fullscreenchange', (event) => {
           var myVar;
@@ -240,6 +239,13 @@ body:-ms-fullscreen {
             // }
           }
         });
+        let loaded = false;
+        const onVisibilityChange = () => {
+          if (document.visibilityState === 'hidden') {
+            console.log("HELLP");
+          }
+        };
+        document.addEventListener('visibilitychange', onVisibilityChange);
         function preventBack() {
             window.history.forward();
         }
