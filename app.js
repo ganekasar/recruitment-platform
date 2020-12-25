@@ -212,18 +212,19 @@ app.post("/:testid/sharetestlink",function(req,res){
     var cron=require('node-cron');
     var schedule = require('node-schedule');
     var year=parseInt(req.body.year);
-    var month=parseInt(req.body.month);
+    var month=parseInt(req.body.month)-1;
     var day=parseInt(req.body.day);
     var hour=parseInt(req.body.hour);
     var minute=parseInt(req.body.minute);
     var second=parseInt(req.body.second);
 
-    var date = new Date(year,month, day, hour, minute, second);
+    var date = Date.parse(new Date(year,month, day, hour, minute, second));
+    date=new Date(date);
     var transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
-          user: 'shivanijadhav1310@gmail.com',
-          pass: 'Prasad@123'
+          user: '',
+          pass: ''
         }
       });
       var idlist=[];
@@ -234,33 +235,33 @@ app.post("/:testid/sharetestlink",function(req,res){
           for(var v=0;v<testsendmail.candidates.length;v++){
               idlist.push(testsendmail.candidates[v]);
           }
-          console.log(idlist);
           var maillist=[];
-          for(var o=0;o<idlist.length;o++){
-            Candidate.findOne({_id:idlist[o]},function(err,mail){
-              maillist.push(mail);
-              var mailOptions = {
-                from: 'shivanijadhav1310@gmail.com',
-                to: maillist,
-                subject: 'Sending Email using Node.js',
-                text: 'That was easy!'
-              };
-
-            var j = schedule.scheduleJob(date, function(){
-              //console.log('The world is going to end today.');
-                transporter.sendMail(mailOptions, function (error, info) {
-                    if (error) {
-                        console.log(error);
-                    } else {
-                        console.log('Email sent: ' + info.response);
-                    }
-                  });
-              });
-            });
-          }
+          Candidate.find({'_id': { $in:idlist}}, function(err, docs){
+               for(var i=0;i<docs.length;i++){
+                 maillist.push(docs[i].username);
+               }
+               //console.log(transporter);
+               //console.log(date);
+               var mailOptions = {
+                 from: '',
+                 to: maillist,
+                 subject: 'Please refer to the below link',
+                 text: 'http://52.0.161.19/'
+               };
+               //console.log(date);
+             var j = schedule.scheduleJob(date, function(){
+               console.log('The world is going to end today.');
+                 transporter.sendMail(mailOptions, function (error, info) {
+                     if (error) {
+                         console.log(error);
+                     } else {
+                         console.log('Email sent: ' + info.response);
+                     }
+                   });
+               });
+          });
         }
       });
-
     res.render("sendmailsuccedfully");
 });
 
@@ -532,6 +533,9 @@ app.get("/:id/viewtest", function(req, res){ //Test can only be viewed if the te
                             console.log(err);
                           }
                           else {
+                            String.prototype.replaceAt = function(index, replacement) {
+                                return this.substr(0, index) + replacement + this.substr(index + replacement.length);
+                            }
                             var date = foundD[0].date;
                             var duration = foundD[0].duration;
                             duration = duration * 60;
@@ -543,7 +547,9 @@ app.get("/:id/viewtest", function(req, res){ //Test can only be viewed if the te
                                 var  b= foundQuestions[f].option2;
                                 var  c= foundQuestions[f].option3;
                                 var  d= foundQuestions[f].option4;
-                                var correctAnswer= foundQuestions[f].answer;
+                                var correctAnswer= "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin lacus velit, scelerisque ut vehicula ac, dictum eu nulla. Suspendisse id nunc congue, vestibulum dui rutrum, tincidunt mauris. Integer non tortor efficitur, pharetra nisl sed, sagittis ex. Quisque viverra nunc eget massa pellentesque efficitur. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aliquam erat volutpat. Cras ullamcorper vehicula dolor, nec cursus nisi. Sed dapibus, nisl a consectetur vestibulum, neque augue aliquam orci, sit amet posuere dolor mauris et dui. Suspendisse et leo id orci facilisis auctor vitae nec arcu. Aenean porta leo nec felis posuere, varius tempor augue viverra. Sed tristique pretium elit, in lacinia lacus rhoncus porta. In gravida ultricies leo, id aliquam elit ultricies vitae. Morbi in lobortis neque, eget malesuada mi. Donec pellentesque semper pulvinarLorem ipsum dolor sit amet, consectetur adipiscing elit. Proin lacus velit, scelerisque ut vehicula ac, dictum eu nulla. Suspendisse id nunc congue, vestibulum dui rutrum, tincidunt mauris. Integer non tortor efficitur, pharetra nisl sed, sagittis ex. Quisque viverra nunc eget massa pellentesque efficitur. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aliquam erat volutpat. Cras ullamcorper vehicula dolor, nec cursus nisi. Sed dapibus, nisl a consectetur vestibulum, neque augue aliquam orci, sit amet posuere dolor mauris et dui. Suspendisse et leo id orci facilisis auctor vitae nec arcu. Aenean porta leo nec felis posuere, varius tempor augue viverra. Sed tristique pretium elit, in lacinia lacus rhoncus porta. In gravida ultricies leo, id aliquam elit ultricies vitae. Morbi in lobortis neque, eget malesuada mi. Donec pellentesque semper pulvinarLorem ipsum dolor sit amet, consectetur adipiscing elit. Proin lacus velit, scelerisque ut vehicula ac, dictum eu nulla. Suspendisse id nunc congue, vestibulum dui rutrum, tincidunt mauris. Integer non tortor efficitur, pharetra nisl sed, sagittis ex. Quisque viverra nunc eget massa pellentesque efficitur. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aliquam erat volutpat. Cras ullamcorper vehicula dolor, nec cursus nisi. Sed dapibus, nisl a consectetur vestibulum, neque augue aliquam orci, sit amet posuere dolor mauris et dui. Suspendisse et leo id orci facilisis auctor vitae nec arcu. Aenean porta leo nec felis posuere, varius tempor augue viverra. Sed tristique pretium elit, in lacinia lacus rhoncus porta. In gravida ultricies leo, id aliquam elit ultricies vitae. Morbi in lobortis neque, eget malesuada mi. Donec pellentesque semper pulvinarLorem ipsum dolor sit amet, consectetur adipiscing elit. Proin lacus velit, scelerisque ut vehicula ac, dictum eu nulla. Suspendisse id nunc congue, vestibulum dui rutrum, tincidunt mauris. Integer non tortor efficitur, pharetra nisl sed, sagittis ex. Quisque viverra nunc eget massa pellentesque efficitur. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aliquam erat volutpat. Cras ullamcorper vehicula dolor, nec cursus nisi. Sed dapibus, nisl a consectetur vestibulum, neque augue aliquam orci, sit amet posuere dolor mauris et dui. Suspendisse et leo id orci facilisis auctor vitae nec arcu. Aenean porta leo nec felis posuere, varius tempor augue viverra. Sed tristique pretium elit, in lacinia lacus rhoncus porta. In gravida ultricies leo, id aliquam elit ultricies vitae. Morbi in lobortis neque, eget malesuada mi. Donec pellentesque semper pulvinarLorem ipsum dolor sit amet, consectetur adipiscing elit. Proin lacus velit, scelerisque ut vehicula ac, dictum eu nulla. Suspendisse id nunc congue, vestibulum dui rutrum, tincidunt mauris. Integer non tortor efficitur, pharetra nisl sed, sagittis ex. Quisque viverra nunc eget massa pellentesque efficitur. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aliquam erat volutpat. Cras ullamcorper vehicula dolor, nec cursus nisi. Sed dapibus, nisl a consectetur vestibulum, neque augue aliquam orci, sit amet posuere dolor mauris et dui. Suspendisse et leo id orci facilisis auctor vitae nec arcu. Aenean porta leo nec felis posuere, varius tempor augue viverra. Sed tristique pretium elit, in lacinia lacus rhoncus porta. In gravida ultricies leo, id aliquam elit ultricies vitae. Morbi in lobortis neque, eget malesuada mi. Donec pellentesque semper pulvinar";
+                                correctAnswer=correctAnswer.replaceAt(1953,(foundQuestions[f].answer));
+                                // console.log(typeof(correctAnswer));
                                 var ob={
                                 question:question,
                                 answers: {
