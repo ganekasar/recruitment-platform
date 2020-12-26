@@ -588,10 +588,12 @@ app.get("/:id/viewtest", function(req, res){ //Test can only be viewed if the te
   });
 //student result
 app.post("/:testid/:stuid/studentresult",function(req,res){
-  //console.log(req.body.submit);
 //  console.log("Sudhaanh");
-  var marks=req.body.submit;
-  if(req.body.submit ==  null)
+//console.log(req.body.submit);
+  var marks=req.body.resultss;
+  // console.log("with name");
+  // console.log(typeof(marks));
+  if(req.body.resultss ==  "")
     marks=0;
   Candidate.updateOne(
     { username: req.params.stuid },

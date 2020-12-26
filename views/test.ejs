@@ -68,6 +68,15 @@ button:hover{
   margin-top: 40px;
   margin-left:200px;
 }
+.noselect {
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Old versions of Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome, Edge, Opera and Firefox */
+}
 body {
   margin: 0;
 }
@@ -124,7 +133,7 @@ body:-ms-fullscreen {
 }
   </style>
 </head>
-<body id="body">
+<body id="body" class="noselect">
 <ul>
   <br>
   <li>Question Palette</li><br>
@@ -138,12 +147,13 @@ body:-ms-fullscreen {
 </div >
 <button id="previous">Previous Question</button >
 <button id="next">Next Question</button >
-<button id="submit">Submit Quiz</button>
+<button id="submitid">Submit Quiz</button>
 <button id="start">Start Test</button>
 <div id="results"></div>
 <% date= Date.parse(date);%>
 <% var totalTime=date+(duration*1000); %>
 <script type="text/javascript">
+
         function fullscreen()
         {
           let elem = document.querySelector("body");
@@ -178,67 +188,6 @@ body:-ms-fullscreen {
         // const fullquiz = document.getElementById('full');
         // fullquiz.style.display = 'none';
         //fullquiz.addEventListener("click",fullscreenstoptimer);
-        document.addEventListener('fullscreenchange', (event) => {
-          var myVar;
-          if (!document.fullscreenElement) {
-            alert("Outside the FullScreen Mode!!!! Your Test is over");
-            //showResults();
-              let myForm = document.querySelector("form");
-              let submitButton = myForm.querySelector("submit");
-              if (myForm.requestSubmit) {
-                if (submitButton) {
-                  myForm.requestSubmit(submitButton);
-                } else {
-                  myForm.requestSubmit();
-                }
-              } else {
-                myForm.submit();
-              }
-            // alert("Exiting this mode will submit your test in 10 seconds. And doing this more than 2 times will automatically submit the test.");
-            // if(num==2){
-            //   let myForm = document.querySelector("form");
-            //   let submitButton = myForm.querySelector("submit");
-            //   if (myForm.requestSubmit) {
-            //     alert("Test is Over!!!");
-            //     if (submitButton) {
-            //       myForm.requestSubmit(submitButton);
-            //     } else {
-            //       myForm.requestSubmit();
-            //     }
-            //   } else {
-            //     myForm.submit();
-            //   }
-            // }
-            // fullquiz.style.display = "inline-block";
-            // num++;
-            // myvar=setInterval(escape,1000);
-            // function stop(){
-            //   console.log("ji");
-            //   console.log(myVar);
-            // }
-            // stop(myVar);
-            // console.log(myVar);
-            //
-            // function escape(){
-            //   escapepress.innerHTML="Time Remaining: "+second;
-            //   if(second==0){
-            //     let myForm = document.querySelector("form");
-            //     let submitButton = myForm.querySelector("submit");
-            //     if (myForm.requestSubmit) {
-            //       alert("Test is Over!!!");
-            //       if (submitButton) {
-            //         myForm.requestSubmit(submitButton);
-            //       } else {
-            //         myForm.requestSubmit();
-            //       }
-            //     } else {
-            //       myForm.submit();
-            //     }
-            //   }
-            //   second--;
-            // }
-          }
-        });
         let loaded = false;
         const onVisibilityChange = () => {
           if (document.visibilityState === 'hidden') {
@@ -253,36 +202,65 @@ body:-ms-fullscreen {
         window.onunload = function () { null };
 </script>
 <script type="text/javascript">
-  const changingId = document.getElementById('remtime');
-  var currentTime= Date.parse(new Date())+(19800000);
-  var durationOfExam= ((<%= totalTime %> - currentTime )/1000);
-  function timer(){
-    let hour=Math.floor(durationOfExam/3600);
-    let minutes=Math.floor((durationOfExam/60)%60);
-    let seconds=durationOfExam % 60;
-    seconds = seconds < 10 ?'0'+seconds : seconds;
-    minutes = minutes < 10 ?'0'+minutes : minutes;
-    changingId.innerHTML="Time Remaining: "+hour+":"+ minutes+":"+seconds;
-    durationOfExam--;
-    if(durationOfExam === 0){
-      //showResults();
-      let myForm = document.querySelector("form");
-      let submitButton = myForm.querySelector("submit");
-      if (myForm.requestSubmit) {
-        alert("Test is Over!!!");
-        if (submitButton) {
-          myForm.requestSubmit(submitButton);
-        } else {
-          myForm.requestSubmit();
-        }
-      } else {
-        myForm.submit();
-      }
-    }
-  }
   let currentSlide = 0;
   (function(){
     // Functions
+    document.addEventListener('fullscreenchange', full);
+    function full(){
+     {
+        var myVar;
+        if (!document.fullscreenElement) {
+          alert("Outside the FullScreen Mode!!!! Your Test is over");
+          //showResults();
+            let myForm = document.querySelector("form");
+            let submitButton = myForm.querySelector("submit");
+            if (myForm.requestSubmit) {
+              if (submitButton) {
+                myForm.requestSubmit(submitButton);
+              } else {
+                myForm.requestSubmit();
+              }
+            } else {
+              myForm.submit();
+            }
+        }
+      }
+    }
+    window.addEventListener('blur', stop);
+    function stop(){
+      document.removeEventListener('fullscreenchange',full);
+      full();
+    }
+    function submitform() {
+      if (validate()) // Calling validate function
+      {
+        alert('Test is submitting.....');
+        document.getElementById("thisform").submit();
+      }
+    }
+    const changingId = document.getElementById('remtime');
+    var currentTime= Date.parse(new Date())+(19800000);
+    var durationOfExam= ((<%= totalTime %> - currentTime )/1000);
+    function timer(){
+      let hour=Math.floor(durationOfExam/3600);
+      let minutes=Math.floor((durationOfExam/60)%60);
+      let seconds=durationOfExam % 60;
+      seconds = seconds < 10 ?'0'+seconds : seconds;
+      minutes = minutes < 10 ?'0'+minutes : minutes;
+      changingId.innerHTML="Time Remaining: "+hour+":"+ minutes+":"+seconds;
+      durationOfExam--;
+      if(durationOfExam===10)
+      {
+        document.removeEventListener('fullscreenchange',full);
+      }
+      if(durationOfExam === 0){
+        submitform();
+      }
+    }
+    function validate(){
+      showResults();
+      return true;
+    }
     function buildQuiz(){
       // variable to store the HTML output
       const output = [];
@@ -346,9 +324,9 @@ body:-ms-fullscreen {
       });
       // to set submitted to true
 
-      document.getElementById('submit').setAttribute("value",numCorrect);
-      document.getElementById('submit').setAttribute("name","submit");
-      document.getElementById('submit').setAttribute("form","form");
+      document.getElementById('submitid').setAttribute("value",numCorrect);
+      document.getElementById('inp').setAttribute("value",numCorrect);
+      console.log(document.getElementById('submitid').getAttribute("value"));
       // show number of correct answers out of total
       //resultsContainer.innerHTML = `${numCorrect} out of ${myQuestions.length}`;
     }
@@ -389,10 +367,12 @@ body:-ms-fullscreen {
     // Variables
     const quizContainer = document.getElementById('quiz');
     const resultsContainer = document.getElementById('results');
-    const submitButton = document.getElementById('submit');
+    const submitButton = document.getElementById('submitid');
     const startquiz = document.getElementById('start');
     startquiz.style.display = "inline-block";
     submitButton.style.display = 'none';
+    submitButton.setAttribute("name","resultsubmit");
+    submitButton.setAttribute("form","thisform");
     startquiz.addEventListener("click",start);
     var myQuestions=<%- JSON.stringify(foundQuestions) %>;
     function startquestionsss()
@@ -419,7 +399,7 @@ body:-ms-fullscreen {
       startquiz.style.display="none";
       escapepress.style.display = 'none';
       showSlide(currentSlide);
-      fullscreen();
+      //fullscreen();
     }
     buildQuiz();
     // Pagination
@@ -438,5 +418,6 @@ body:-ms-fullscreen {
 
 </script>
 
-<form id="form" action="/<%= testid %>/<%= stuid %>/studentresult" method="post">
+<form id="thisform" action="/<%= testid %>/<%= stuid %>/studentresult" method="post">
+  <input type="number" name="resultss" id="inp" hidden>
 </form>
