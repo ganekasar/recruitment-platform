@@ -22,7 +22,13 @@ app.use(express.static(__dirname + "/public"));
 
 mongoose.connect("mongodb://localhost/project", {useNewUrlParser: true, useUnifiedTopology: true});
 
-//Passport Configuration
+
+/*
+================================================================================================
+    PASSPORT CONFIGURATION   
+================================================================================================ 
+*/
+
 app.use(require("express-session") ({
     secret : "This is a secret page",
     resave : false,
@@ -34,30 +40,43 @@ app.use(passport.session());
 app.use(flash());
 passport.use(new LocalStrategy(Candidate.authenticate()));
 
-
 passport.serializeUser(Candidate.serializeUser());
 passport.deserializeUser(Candidate.deserializeUser());
 
-//Middleware For currently logged in user
+//MIDDLEWARE TO CHECK IF USER IS LOGGED IN
+
 app.use(function(req, res, next) {
-    res.locals.currentUser = req.user;  //This is available to all the templates
+    res.locals.currentUser = req.user;  //THIS IS AVAILABLE TO ALL THE TEMPLATES
     res.locals.error       = req.flash("error");
     res.locals.success     = req.flash("success");
-    next();                             //execute next code
+    next();                             //EXECUTE NEXT CODE
 });
 
 app.get("/", function(req, res) {
-    //console.log(req.user);
-    res.render("landing");
+    if(req.user) { // IF ALREADY LOGGED IN
+      if(req.user.username == "iamadmin@gmail.com") {
+        res.redirect("/company"); // IF USER IS ADMIN
+      } else {
+        res.redirect("/" + req.user.username + "/studentlanding"); // IF NOT ADMIN
+      }
+    } else {
+      res.render("landing");
+    }
 });
 
 app.get("/company", middleware.checkIsCompany, function(req, res){
     res.render("companyLanding.ejs");
 });
+
 app.get("/companyLanding", middleware.checkIsCompany, function(req, res){
     res.render("companyLanding.ejs");
 });
-//TEST ROUTES
+
+/*
+=========================================================================================
+      TEST ROUTES
+=========================================================================================
+*/
 
 app.get("/createtest", middleware.checkIsCompany, function(req, res) {
     res.render("createtest");
@@ -65,13 +84,12 @@ app.get("/createtest", middleware.checkIsCompany, function(req, res) {
 
 app.post("/createtest", function(req, res) {
     const name = req.body.name;
+    
     let duration = req.body.duration;
     let date = req.body.date;
     let time = req.body.time;
+    
     date = date + "T" + time + ":00Z";
-
-    //console.log((date));
-    //console.log(typeof(duration));
 
     const item = new Test( {
         name: name,
@@ -101,16 +119,12 @@ app.get("/selecttest", middleware.checkIsCompany, function(req, res) {
 app.post("/selecttest", function(req, res) {
     const test = req.body.name;
 
-    //console.log(test);
-
     res.redirect("/" + test + "/managetest");
 });
 
 app.get("/:id/managetest", function(req, res) {
 
     const test = req.params.id;
-
-    //console.log(test);
 
     res.render("managetest", {test: test});
 
@@ -155,6 +169,7 @@ app.post("/managetest", function(req, res) {
             answer: ans,
             test: req.body.test
         });
+
         item.save();
     } else {
         const ques = req.body.ques;
@@ -175,51 +190,56 @@ app.post("/managetest", function(req, res) {
         item.save();
     }
     res.render("addedsuccessfully",{testname : test});
-    //res.redirect("/"+test.name+"/managetest");
-})
+});
 
-app.get("/sharetestlink", middleware.checkIsCompany,function(req,res){
-  var sendtest=[];
-  var todaydate=Date.parse((new Date()).toISOString())+19800000;
-  var date_diff_indays = function(date1,date2) { //Function to return seconds difference between current date and exam date
+app.get("/sharetestlink", middleware.checkIsCompany, function(req, res) {
+  var sendtest = [];
+  var todaydate = Date.parse((new Date()).toISOString())+19800000;
+  
+  var date_diff_indays = function(date1, date2) { //Function to return seconds difference between current date and exam date
      dt1 = new Date(date1);
      dt2 = new Date(date2);
      return ((Date.UTC(dt2.getFullYear(), dt2.getMonth(), dt2.getDate(),dt2.getHours(),dt2.getMinutes(),dt2.getSeconds()) - Date.UTC(dt1.getFullYear(), dt1.getMonth(), dt1.getDate(),dt1.getHours(),dt1.getMinutes(),dt1.getSeconds()) ) /(1000));
   }
-  Test.find({},function(err,foundtest){
-   if(err){
+
+  Test.find({},function(err, foundtest) {
+   if(err) {
      console.log(err);
    }
-   else{
-     for(var i=0;i<  foundtest.length ;i++){
-       var timediff  = date_diff_indays(todaydate,Date.parse(foundtest[i].date.toISOString()));
-       var dur=foundtest[i].duration;
-       dur=dur*60;
-       if(timediff + dur>0){
-        sendtest.push(foundtest[i]);
-      }
+   else {
+     for(var i = 0; i < foundtest.length; i++) {
+        var timediff  = date_diff_indays(todaydate,Date.parse(foundtest[i].date.toISOString()));
+        var dur = foundtest[i].duration;
+        dur = dur*60;
+       
+        if(timediff + dur > 0) {
+          sendtest.push(foundtest[i]);
+        }
      }
-   }
-  res.render("sharewhichtest",{tests:sendtest});
- });
+    }
+    
+    res.render("sharewhichtest",{tests:sendtest});
+  });
 });
 
-app.get("/:testid/sharetestlink", middleware.checkIsCompany,function(req,res){
-  res.render("sharetestlink",{testid:req.params.testid});
+app.get("/:testid/sharetestlink", middleware.checkIsCompany, function(req, res) {
+    res.render("sharetestlink", {testid : req.params.testid});
 });
-app.post("/:testid/sharetestlink",function(req,res){
-    var nodemailer=require( 'nodemailer');
-    var cron=require('node-cron');
+
+app.post("/:testid/sharetestlink", function(req, res) {
+    var nodemailer = require('nodemailer');
+    var cron = require('node-cron');
     var schedule = require('node-schedule');
-    var year=parseInt(req.body.year);
-    var month=parseInt(req.body.month)-1;
-    var day=parseInt(req.body.day);
-    var hour=parseInt(req.body.hour);
-    var minute=parseInt(req.body.minute);
-    var second=parseInt(req.body.second);
+    var year = parseInt(req.body.year);
+    var month = parseInt(req.body.month) - 1;
+    var day = parseInt(req.body.day);
+    var hour = parseInt(req.body.hour);
+    var minute = parseInt(req.body.minute);
+    var second = parseInt(req.body.second);
 
     var date = Date.parse(new Date(year,month, day, hour, minute, second));
-    date=new Date(date);
+
+    date = new Date(date);
     var transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
@@ -227,30 +247,34 @@ app.post("/:testid/sharetestlink",function(req,res){
           pass: ''
         }
       });
-      var idlist=[];
-      Test.findOne({_id:req.params.testid},function(err,testsendmail){
-        if(err){
+
+    var idlist=[];
+    
+    Test.findOne({_id:req.params.testid}, function(err, testsendmail) {
+        if(err) {
           console.log(err);
-        }else{
-          for(var v=0;v<testsendmail.candidates.length;v++){
+        } else {
+          for(var v = 0; v < testsendmail.candidates.length; v++){
               idlist.push(testsendmail.candidates[v]);
           }
+
           var maillist=[];
-          Candidate.find({'_id': { $in:idlist}}, function(err, docs){
-               for(var i=0;i<docs.length;i++){
+          
+          Candidate.find({'_id': { $in : idlist}}, function(err, docs) {
+               for(var i = 0;i < docs.length; i++){
                  maillist.push(docs[i].username);
                }
-               //console.log(transporter);
-               //console.log(date);
+
                var mailOptions = {
                  from: '',
-                 to: maillist,
+                 to : maillist,
                  subject: 'Please refer to the below link',
-                 text: 'http://52.0.161.19/'
+                 text: 'https://plusone.ganeshkasar.live/'
                };
-               //console.log(date);
-             var j = schedule.scheduleJob(date, function(){
-               console.log('The world is going to end today.');
+
+            
+              var j = schedule.scheduleJob(date, function() {
+                console.log('The world is going to end today.');
                  transporter.sendMail(mailOptions, function (error, info) {
                      if (error) {
                          console.log(error);
@@ -267,11 +291,11 @@ app.post("/:testid/sharetestlink",function(req,res){
 
 
 app.get("/signup", function(req, res){
-    res.render("signup");                     //Bhai savji ye kya hai
+    res.render("signup");                     
 });
 
 app.get("/login", function(req, res){
-    res.render("login");                  //Bhai savji ye kya hai
+    res.render("login");                  
 });
 
 app.get("/:id/test", function(req, res) {
@@ -303,7 +327,6 @@ app.get("/:id/test", function(req, res) {
                     console.log("Error occured while fetching data from database!");
                     res.redirect("/createtest");
                 } else {
-
                     Test.find({_id:id},function(err,foundD) {
                       if(err) {
                         console.log(err);
@@ -311,26 +334,29 @@ app.get("/:id/test", function(req, res) {
                       else {
                         var date = foundD[0].date;
                         var duration = foundD[0].duration;
+                        
                         duration=duration*60;
+                        
                         var myQuestions = [];
-                        for(var f=0;f<foundQuestions.length ; f++)
-                          {
+                        
+                        for(var f = 0; f < foundQuestions.length; f++) {
                             var question = foundQuestions[f].question;
-                            var  a= foundQuestions[f].option1;
-                            var  b= foundQuestions[f].option2;
-                            var  c= foundQuestions[f].option3;
-                            var  d= foundQuestions[f].option4;
+                            var a= foundQuestions[f].option1;
+                            var b= foundQuestions[f].option2;
+                            var c= foundQuestions[f].option3;
+                            var d= foundQuestions[f].option4;
                             var correctAnswer= foundQuestions[f].answer;
-                            var ob={
-                            question:question,
-                            answers: {
-                              a: a,
-                              b: b,
-                              c: c,
-                              d: d
-                            },
-                            correctAnswer: correctAnswer
+                            var ob = {
+                              question:question,
+                              answers: {
+                                a: a,
+                                b: b,
+                                c: c,
+                                d: d
+                              },
+                              correctAnswer: correctAnswer
                           };
+
                           myQuestions.push(ob);
                       }
                         res.render("oldtest", {foundQuestions : myQuestions, date : date, duration : duration, foundCodingProblems : foundCodingPbs});
@@ -342,18 +368,18 @@ app.get("/:id/test", function(req, res) {
     });
 });
 
-app.post("/test", function(req, res){
+app.post("/test", function(req, res) {
     res.render("worksfine");
 });
 
-app.get("/viewtest", middleware.checkIsCompany,function(req,res){
+app.get("/viewtest", middleware.checkIsCompany, function(req, res){
   Test.find({}, function(err, foundTests) {
       if(err) {
           res.redirect("/createtest");
       } else {
-        if(foundTests ==0){
+        if(foundTests == 0){
           res.render("notest");
-        }else{
+        } else {
         res.render("selectviewtest", {foundTests : foundTests});
         }
       }
@@ -362,38 +388,42 @@ app.get("/viewtest", middleware.checkIsCompany,function(req,res){
 
 app.get("/:id/viewtest", function(req, res){ //Test can only be viewed if the test is at that time
 
-    const test = new Test({
-      name:req.params.id
-    });
+  const test = new Test({
+    name:req.params.id
+  });
+  
   const id = test.name;
   var dateExam;
   var duration;
+  
   let one =9;
+  
   Test.find({_id:id},function(err,dateFound){
     if(err){
       console.log("Error from test db about date");
       console.log(err);
     }
     else{
-       //console.log(dateFound);
        var date_diff_indays = function(date1,date2) { //Function to return seconds difference between current date and exam date
           dt1 = new Date(date1);
           dt2 = new Date(date2);
           return ((Date.UTC(dt2.getFullYear(), dt2.getMonth(), dt2.getDate(),dt2.getHours(),dt2.getMinutes(),dt2.getSeconds()) - Date.UTC(dt1.getFullYear(), dt1.getMonth(), dt1.getDate(),dt1.getHours(),dt1.getMinutes(),dt1.getSeconds()) ) /(1000));
        }
+  
        dateExam=dateFound[0].date;
        dateExam.setMinutes(dateExam.getMinutes()-330);
+  
        var curDate = new Date();
+  
        curDate= curDate.toISOString();
        dateExam = dateExam.toISOString();
+  
        var timeDiff  = date_diff_indays(dateExam,curDate);
+  
        duration=dateFound[0].duration;
        duration = duration * 60;
-       // console.log(duration);
-       // console.log(date);
-       // console.log(curDate);
-       // console.log(timeDiff);
-       if(duration >= timeDiff && timeDiff>=0){
+  
+       if(duration >= timeDiff && timeDiff >= 0) {
 
         Question.find({test : id}, function(err, foundQuestions) {
            if(err) {
@@ -401,7 +431,6 @@ app.get("/:id/viewtest", function(req, res){ //Test can only be viewed if the te
                console.log(err);
                res.redirect("/createtest");
            } else {
-              //console.log("Sudhanshu");
                let sendDate = Date.parse(dateExam); //sending in milliseconds (Time passed since I think 1970)
 
                Codingproblem.find({test : test.name}, function(err, foundCodingPbs) {
@@ -439,79 +468,73 @@ app.get("/:id/viewtest", function(req, res){ //Test can only be viewed if the te
                           };
                           myQuestions.push(ob);
                       }
-                      // for(var f=0;f<myQuestions.length;f++){
-                      //   console.log(myQuestions[f]);
-                      // }
-                        res.render("oldtest", {testid:req.params.id,foundQuestions : myQuestions, date : date, duration : duration, foundCodingProblems : foundCodingPbs});
+                      
+                      res.render("oldtest", {testid:req.params.id,foundQuestions : myQuestions, date : date, duration : duration, foundCodingProblems : foundCodingPbs});
                         }
                     });
                 }
             });
-
-               //res.render("test", {foundQuestions: foundQuestions,date:sendDate,duration:duration});
            }
        });
        }else{
-        //console.log((date));
-        //console.log(d);
         var availDateObject = new Date(Date.parse(dateExam));
         res.render("testCurrentlyNot",{availableAt:availDateObject});
        }
-       //date = JSON.stringify(date);
     }
   });
 });
 
   app.get("/:stuid/:id/viewtest", function(req, res){       //To prevent user from going back
-    res.render("starttest",{stuid:req.params.stuid,id:req.params.id});
+    res.render("starttest", {stuid : req.params.stuid, id : req.params.id});
   });
 
-  app.get("/:true/:stuid/:id/viewtest",function(req,res){
+  app.get("/:true/:stuid/:id/viewtest",function(req,res) {
                                       //Test can only be viewed if the test is at that time with student
         const test = new Test({
           name:req.params.id
         });
+
       const id = test.name;
       var dateExam;
       var duration;
       let one =9;
-      //console.log(one);
-      //console.log(req.params.id);
-      Candidate.findOne({username:req.params.stuid},function(err,stude){
-        for(let i =0;i<stude.submitted.length;i++){
-          if(stude.submitted[i].toString()== req.params.id.toString())
-          {
-            //console.log("ss");
-            if(stude.yesorno[i]===true)
-                {
-                  //console.log("Sud");
+      
+      Candidate.findOne({username : req.params.stuid}, function(err, stude){
+        
+        for(let i = 0;i<stude.submitted.length;i++){
+          if(stude.submitted[i].toString()== req.params.id.toString()) {
+            if(stude.yesorno[i]===true) {
                   res.render("testalreadysubmitted",{testid:req.params.id,stuid:req.params.stuid});
-                }
+              }
           }
         }
       });
-    //  console.log(one);
+      
       Test.find({_id:id},function(err, dateFound){
-        if(err){
+        if(err) {
           console.log("Error from test db about date");
           console.log(err);
-        }
-        else{
-           //console.log(dateFound);
-           var date_diff_indays = function(date1,date2) { //Function to return seconds difference between current date and exam date
+        } else{
+           var date_diff_indays = function(date1, date2) { //Function to return seconds difference between current date and exam date
               dt1 = new Date(date1);
               dt2 = new Date(date2);
               return ((Date.UTC(dt2.getFullYear(), dt2.getMonth(), dt2.getDate(),dt2.getHours(),dt2.getMinutes(),dt2.getSeconds()) - Date.UTC(dt1.getFullYear(), dt1.getMonth(), dt1.getDate(),dt1.getHours(),dt1.getMinutes(),dt1.getSeconds()) ) /(1000));
            }
+
            dateExam=dateFound[0].date;
            dateExam.setMinutes(dateExam.getMinutes()-330);
+           
            var curDate = new Date();
+           
            curDate= curDate.toISOString();
            dateExam = dateExam.toISOString();
+           
            var timeDiff  = date_diff_indays(dateExam,curDate);
+           
            duration=dateFound[0].duration;
            duration = duration * 60;
-           if(duration >= timeDiff && timeDiff>=0){
+           
+           if(duration >= timeDiff && timeDiff >= 0) {
 
             Question.find({test : id}, function(err, foundQuestions) {
                if(err) {
@@ -519,7 +542,6 @@ app.get("/:id/viewtest", function(req, res){ //Test can only be viewed if the te
                    console.log(err);
                    res.redirect("/createtest");
                } else {
-                  //console.log("Sudhanshu");
                    let sendDate = Date.parse(dateExam); //sending in milliseconds (Time passed since I think 1970)
 
                    Codingproblem.find({test : test.name}, function(err, foundCodingPbs) {
@@ -540,8 +562,7 @@ app.get("/:id/viewtest", function(req, res){ //Test can only be viewed if the te
                             var duration = foundD[0].duration;
                             duration = duration * 60;
                             var myQuestions = [];
-                            for(var f=0;f<foundQuestions.length ; f++)
-                              {
+                            for(var f=0;f<foundQuestions.length ; f++) {
                                 var question = foundQuestions[f].question;
                                 var  a= foundQuestions[f].option1;
                                 var  b= foundQuestions[f].option2;
@@ -549,50 +570,44 @@ app.get("/:id/viewtest", function(req, res){ //Test can only be viewed if the te
                                 var  d= foundQuestions[f].option4;
                                 var correctAnswer= "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin lacus velit, scelerisque ut vehicula ac, dictum eu nulla. Suspendisse id nunc congue, vestibulum dui rutrum, tincidunt mauris. Integer non tortor efficitur, pharetra nisl sed, sagittis ex. Quisque viverra nunc eget massa pellentesque efficitur. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aliquam erat volutpat. Cras ullamcorper vehicula dolor, nec cursus nisi. Sed dapibus, nisl a consectetur vestibulum, neque augue aliquam orci, sit amet posuere dolor mauris et dui. Suspendisse et leo id orci facilisis auctor vitae nec arcu. Aenean porta leo nec felis posuere, varius tempor augue viverra. Sed tristique pretium elit, in lacinia lacus rhoncus porta. In gravida ultricies leo, id aliquam elit ultricies vitae. Morbi in lobortis neque, eget malesuada mi. Donec pellentesque semper pulvinarLorem ipsum dolor sit amet, consectetur adipiscing elit. Proin lacus velit, scelerisque ut vehicula ac, dictum eu nulla. Suspendisse id nunc congue, vestibulum dui rutrum, tincidunt mauris. Integer non tortor efficitur, pharetra nisl sed, sagittis ex. Quisque viverra nunc eget massa pellentesque efficitur. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aliquam erat volutpat. Cras ullamcorper vehicula dolor, nec cursus nisi. Sed dapibus, nisl a consectetur vestibulum, neque augue aliquam orci, sit amet posuere dolor mauris et dui. Suspendisse et leo id orci facilisis auctor vitae nec arcu. Aenean porta leo nec felis posuere, varius tempor augue viverra. Sed tristique pretium elit, in lacinia lacus rhoncus porta. In gravida ultricies leo, id aliquam elit ultricies vitae. Morbi in lobortis neque, eget malesuada mi. Donec pellentesque semper pulvinarLorem ipsum dolor sit amet, consectetur adipiscing elit. Proin lacus velit, scelerisque ut vehicula ac, dictum eu nulla. Suspendisse id nunc congue, vestibulum dui rutrum, tincidunt mauris. Integer non tortor efficitur, pharetra nisl sed, sagittis ex. Quisque viverra nunc eget massa pellentesque efficitur. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aliquam erat volutpat. Cras ullamcorper vehicula dolor, nec cursus nisi. Sed dapibus, nisl a consectetur vestibulum, neque augue aliquam orci, sit amet posuere dolor mauris et dui. Suspendisse et leo id orci facilisis auctor vitae nec arcu. Aenean porta leo nec felis posuere, varius tempor augue viverra. Sed tristique pretium elit, in lacinia lacus rhoncus porta. In gravida ultricies leo, id aliquam elit ultricies vitae. Morbi in lobortis neque, eget malesuada mi. Donec pellentesque semper pulvinarLorem ipsum dolor sit amet, consectetur adipiscing elit. Proin lacus velit, scelerisque ut vehicula ac, dictum eu nulla. Suspendisse id nunc congue, vestibulum dui rutrum, tincidunt mauris. Integer non tortor efficitur, pharetra nisl sed, sagittis ex. Quisque viverra nunc eget massa pellentesque efficitur. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aliquam erat volutpat. Cras ullamcorper vehicula dolor, nec cursus nisi. Sed dapibus, nisl a consectetur vestibulum, neque augue aliquam orci, sit amet posuere dolor mauris et dui. Suspendisse et leo id orci facilisis auctor vitae nec arcu. Aenean porta leo nec felis posuere, varius tempor augue viverra. Sed tristique pretium elit, in lacinia lacus rhoncus porta. In gravida ultricies leo, id aliquam elit ultricies vitae. Morbi in lobortis neque, eget malesuada mi. Donec pellentesque semper pulvinarLorem ipsum dolor sit amet, consectetur adipiscing elit. Proin lacus velit, scelerisque ut vehicula ac, dictum eu nulla. Suspendisse id nunc congue, vestibulum dui rutrum, tincidunt mauris. Integer non tortor efficitur, pharetra nisl sed, sagittis ex. Quisque viverra nunc eget massa pellentesque efficitur. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aliquam erat volutpat. Cras ullamcorper vehicula dolor, nec cursus nisi. Sed dapibus, nisl a consectetur vestibulum, neque augue aliquam orci, sit amet posuere dolor mauris et dui. Suspendisse et leo id orci facilisis auctor vitae nec arcu. Aenean porta leo nec felis posuere, varius tempor augue viverra. Sed tristique pretium elit, in lacinia lacus rhoncus porta. In gravida ultricies leo, id aliquam elit ultricies vitae. Morbi in lobortis neque, eget malesuada mi. Donec pellentesque semper pulvinar";
                                 correctAnswer=correctAnswer.replaceAt(1953,(foundQuestions[f].answer));
-                                // console.log(typeof(correctAnswer));
+                                
                                 var ob={
-                                question:question,
-                                answers: {
+                                
+                                  question:question,
+                                
+                                  answers: {
                                   a: a,
                                   b: b,
                                   c: c,
                                   d: d
                                 },
+                                
                                 correctAnswer: correctAnswer
                               };
                               myQuestions.push(ob);
                           }
-                          //console.log("test");
-                          // for(var f=0;f<myQuestions.length;f++){
-                          //   console.log(myQuestions[f]);
-                          // }
-
-                            res.render("test", {testid:req.params.id,foundQuestions : myQuestions, date : date, duration : duration, foundCodingProblems : foundCodingPbs,stuid:req.params.stuid});
+                          
+                          res.render("test", {testid:req.params.id,foundQuestions : myQuestions, date : date, duration : duration, foundCodingProblems : foundCodingPbs,stuid:req.params.stuid});
                             }
                         });
                     }
                 });
 
-                   //res.render("test", {foundQuestions: foundQuestions,date:sendDate,duration:duration});
                }
            });
-           }else{
-            //console.log((date));
-            //console.log(d);
+           } else {
             var availDateObject = new Date(Date.parse(dateExam));
             res.render("testCurrentlyNotstudent",{availableAt:availDateObject,stuid:req.params.stuid});
            }
-           //date = JSON.stringify(date);
+        
         }
       });
   });
+
 //student result
 app.post("/:testid/:stuid/studentresult",function(req,res){
-//  console.log("Sudhaanh");
-//console.log(req.body.submit);
   var marks=req.body.resultss;
-  // console.log("with name");
-  // console.log(typeof(marks));
+
   if(req.body.resultss ==  "")
     marks=0;
   Candidate.updateOne(
@@ -622,8 +637,6 @@ app.post("/:testid/:stuid/studentresult",function(req,res){
       }
     }
   );
-  //Candidate.find({})
-  //window.onbeforeunload = function() { return "Your work will be lost."; };
   res.render("studentresult",{result:req.params.stuid.result,stuid:req.params.stuid});
 });
 
@@ -648,35 +661,36 @@ app.post("/studentRegister", function(req, res) {
             console.log(err);
             return res.render("studentRegister", {error: err.message});
         }
-        //res.redirect("/");
-        passport.authenticate("local")(req,res,function(){
+        
+        passport.authenticate("local") (req, res, function() {
             req.flash("success", "Welcome " + newCandidate.name + "!");
             if(req.body.username === 'iamadmin@gmail.com' && req.body.password === 'admin123'){
                 res.redirect("/companyLanding");   //admin hai toh company page
-            }
-            else{
-              var sendtest=[];
-              var todaydate=Date.parse((new Date()).toISOString())+19800000;
+            } else {
+              var sendtest = [];
+              var todaydate = Date.parse((new Date()).toISOString()) + 19800000;
               var date_diff_indays = function(date1,date2) { //Function to return seconds difference between current date and exam date
                  dt1 = new Date(date1);
                  dt2 = new Date(date2);
                  return ((Date.UTC(dt2.getFullYear(), dt2.getMonth(), dt2.getDate(),dt2.getHours(),dt2.getMinutes(),dt2.getSeconds()) - Date.UTC(dt1.getFullYear(), dt1.getMonth(), dt1.getDate(),dt1.getHours(),dt1.getMinutes(),dt1.getSeconds()) ) /(1000));
               }
+
               Test.find({},function(err,foundtest){
-               if(err){
+              
+                if(err) {
                  console.log(err);
-               }
-               else{
-                 for(var i=0;i<  foundtest.length ;i++){
-                   var timediff  = date_diff_indays(todaydate,Date.parse(foundtest[i].date.toISOString()));
-                   var dur=foundtest[i].duration;
-                   dur=dur*60;
-                   if(timediff + dur>0){
+               } else {
+                 for(var i = 0; i < foundtest.length; i++) {
+                   var timediff = date_diff_indays(todaydate,Date.parse(foundtest[i].date.toISOString()));
+                   var dur = foundtest[i].duration;
+                   dur = dur*60;
+                   
+                   if(timediff + dur > 0) {
                     sendtest.push(foundtest[i]);
                   }
                  }
                }
-               res.render("studentlanding",{sendtest:sendtest,stuid:req.body.username});
+               res.render("studentlanding", {sendtest : sendtest, stuid : req.body.username});
              });
             }
         })
@@ -973,6 +987,10 @@ app.get(("/viewresults"), middleware.checkIsCompany,function(req,res){
     }
   });
 });
+
+app.get(("/viewcandidates"), middleware.checkIsCompany, function(req, res){
+  
+})
 
 //Viewing test results for the admin of particular test
 app.get(("/:testid/results"),function(req,res){
