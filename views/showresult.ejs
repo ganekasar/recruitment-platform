@@ -9,10 +9,12 @@
       <th>Username</th>
       <th>Marks</th>
     </tr>
-  <% for(var i=0; i<result.length ;i++){ %>
-    <td>result[i][0]</td>
-    <td>result[i][1]</td>
-    <td>result[i][2]</td>
+  <% for(var i=0; i<result.length; i++){ %>
+    <tr>
+      <td><%= result[i][0] %></td>
+      <td><%= result[i][1] %></td>
+      <td><%= result[i][2] %></td>
+    </tr>
   <% } %>
 </table>
 <%- include("partials/footer") %>

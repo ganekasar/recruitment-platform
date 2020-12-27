@@ -886,7 +886,7 @@ app.get("/:stuid/studentprofile",function(req,res){
     if(err){
       console.log(err);
     }else{
-      res.render("studentprofile",{pro:stud,stuid:req.params.stuid});
+      res.render("studentprofile", {pro :stud, stuid : req.params.stuid});
     }
   });
 });
