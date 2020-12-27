@@ -16,7 +16,8 @@ var CandidateSchema = new mongoose.Schema({
     [{
       type: Boolean, default: false
     }],
-    isLoggedIn : {type: Boolean, default: false}
+    isLoggedIn : {type: Boolean, default: false},
+    prn : String
 });
 
 CandidateSchema.plugin(passportLocalMongoose);

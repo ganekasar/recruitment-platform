@@ -650,7 +650,7 @@ app.get("/studentRegister", function(req, res){
 
 //Handle signup logic
 app.post("/studentRegister", function(req, res) {
-    var newCandidate = new Candidate({name : req.body.candidate_name, username : req.body.username, Institute : req.body.institute, LinkedIn : req.body.linkedin })
+    var newCandidate = new Candidate({name : req.body.candidate_name, username : req.body.username, Institute : req.body.institute, LinkedIn : req.body.linkedin, prn : req.body.prn})
 
     if(req.body.username === 'iamadmin@gmail.com' && req.body.password === 'admin123'){
         newCandidate.isAdmin = true;
