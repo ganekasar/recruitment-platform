@@ -490,119 +490,117 @@ app.get("/:id/viewtest", function(req, res){ //Test can only be viewed if the te
 
   app.get("/:true/:stuid/:id/viewtest",function(req,res) {
                                       //Test can only be viewed if the test is at that time with student
-        const test = new Test({
-          name:req.params.id
-        });
+    const test = new Test({
+        name:req.params.id
+    });
 
-      const id = test.name;
-      var dateExam;
-      var duration;
-      let one =9;
+    const id = test.name;
+    var dateExam;
+    var duration;
+    let one = 9;
       
-      Candidate.findOne({username : req.params.stuid}, function(err, stude){
+    Candidate.findOne({username : req.params.stuid}, function(err, stude){
         
-        for(let i = 0;i<stude.submitted.length;i++){
-          if(stude.submitted[i].toString()== req.params.id.toString()) {
-            if(stude.yesorno[i]===true) {
-                  res.render("testalreadysubmitted",{testid:req.params.id,stuid:req.params.stuid});
-              }
-          }
+        for(let i = 0; i < stude.submitted.length; i++) {
+          	if(stude.submitted[i].toString() == req.params.id.toString()) {
+            	if(stude.yesorno[i] === true) {
+                	res.render("testalreadysubmitted", {testid : req.params.id, stuid : req.params.stuid});
+              	}
+          	}
         }
-      });
+    });
       
-      Test.find({_id:id},function(err, dateFound){
+    Test.find({_id : id}, function(err, dateFound) {
         if(err) {
-          console.log("Error from test db about date");
-          console.log(err);
-        } else{
-           var date_diff_indays = function(date1, date2) { //Function to return seconds difference between current date and exam date
-              dt1 = new Date(date1);
-              dt2 = new Date(date2);
-              return ((Date.UTC(dt2.getFullYear(), dt2.getMonth(), dt2.getDate(),dt2.getHours(),dt2.getMinutes(),dt2.getSeconds()) - Date.UTC(dt1.getFullYear(), dt1.getMonth(), dt1.getDate(),dt1.getHours(),dt1.getMinutes(),dt1.getSeconds()) ) /(1000));
+        	console.log("Error from test db about date");
+          	console.log(err);
+        } else {
+           	var date_diff_indays = function(date1, date2) { //Function to return seconds difference between current date and exam date
+              	dt1 = new Date(date1);
+              	dt2 = new Date(date2);
+              	return ((Date.UTC(dt2.getFullYear(), dt2.getMonth(), dt2.getDate(), dt2.getHours(), dt2.getMinutes(), dt2.getSeconds()) - Date.UTC(dt1.getFullYear(), dt1.getMonth(), dt1.getDate(), dt1.getHours(), dt1.getMinutes(), dt1.getSeconds())) /(1000));
            }
 
-           dateExam=dateFound[0].date;
-           dateExam.setMinutes(dateExam.getMinutes()-330);
+           	dateExam = dateFound[0].date;
+           	dateExam.setMinutes(dateExam.getMinutes() - 330);
            
-           var curDate = new Date();
+           	var curDate = new Date();
            
-           curDate= curDate.toISOString();
-           dateExam = dateExam.toISOString();
+           	curDate = curDate.toISOString();
+           	dateExam = dateExam.toISOString();
            
-           var timeDiff  = date_diff_indays(dateExam,curDate);
+           	var timeDiff  = date_diff_indays(dateExam, curDate);
            
-           duration=dateFound[0].duration;
-           duration = duration * 60;
+           	duration = dateFound[0].duration;
+           	duration = duration * 60;
            
-           if(duration >= timeDiff && timeDiff >= 0) {
+           	if(duration >= timeDiff && timeDiff >= 0) {
 
-            Question.find({test : id}, function(err, foundQuestions) {
-               if(err) {
-                   console.log("Error occured while fetching data from database!");
-                   console.log(err);
-                   res.redirect("/createtest");
-               } else {
-                   let sendDate = Date.parse(dateExam); //sending in milliseconds (Time passed since I think 1970)
+            	Question.find({test : id}, function(err, foundQuestions) {
+               		if(err) {
+                   		console.log("Error occured while fetching data from database!");
+                   		console.log(err);
+                   		res.redirect("/createtest");
+               		} else {
+                   		let sendDate = Date.parse(dateExam); //sending in milliseconds (Time passed since I think 1970)
 
-                   Codingproblem.find({test : test.name}, function(err, foundCodingPbs) {
-                    if(err) {
-                        console.log("Error occured while fetching data from database!");
-                        res.redirect("/createtest");
-                    } else {
-
-                        Test.find({_id:id},function(err,foundD) {
-                          if(err) {
-                            console.log(err);
-                          }
-                          else {
-                            String.prototype.replaceAt = function(index, replacement) {
-                                return this.substr(0, index) + replacement + this.substr(index + replacement.length);
-                            }
-                            var date = foundD[0].date;
-                            var duration = foundD[0].duration;
-                            duration = duration * 60;
-                            var myQuestions = [];
-                            for(var f=0;f<foundQuestions.length ; f++) {
-                                var question = foundQuestions[f].question;
-                                var  a= foundQuestions[f].option1;
-                                var  b= foundQuestions[f].option2;
-                                var  c= foundQuestions[f].option3;
-                                var  d= foundQuestions[f].option4;
-                                var correctAnswer= "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin lacus velit, scelerisque ut vehicula ac, dictum eu nulla. Suspendisse id nunc congue, vestibulum dui rutrum, tincidunt mauris. Integer non tortor efficitur, pharetra nisl sed, sagittis ex. Quisque viverra nunc eget massa pellentesque efficitur. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aliquam erat volutpat. Cras ullamcorper vehicula dolor, nec cursus nisi. Sed dapibus, nisl a consectetur vestibulum, neque augue aliquam orci, sit amet posuere dolor mauris et dui. Suspendisse et leo id orci facilisis auctor vitae nec arcu. Aenean porta leo nec felis posuere, varius tempor augue viverra. Sed tristique pretium elit, in lacinia lacus rhoncus porta. In gravida ultricies leo, id aliquam elit ultricies vitae. Morbi in lobortis neque, eget malesuada mi. Donec pellentesque semper pulvinarLorem ipsum dolor sit amet, consectetur adipiscing elit. Proin lacus velit, scelerisque ut vehicula ac, dictum eu nulla. Suspendisse id nunc congue, vestibulum dui rutrum, tincidunt mauris. Integer non tortor efficitur, pharetra nisl sed, sagittis ex. Quisque viverra nunc eget massa pellentesque efficitur. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aliquam erat volutpat. Cras ullamcorper vehicula dolor, nec cursus nisi. Sed dapibus, nisl a consectetur vestibulum, neque augue aliquam orci, sit amet posuere dolor mauris et dui. Suspendisse et leo id orci facilisis auctor vitae nec arcu. Aenean porta leo nec felis posuere, varius tempor augue viverra. Sed tristique pretium elit, in lacinia lacus rhoncus porta. In gravida ultricies leo, id aliquam elit ultricies vitae. Morbi in lobortis neque, eget malesuada mi. Donec pellentesque semper pulvinarLorem ipsum dolor sit amet, consectetur adipiscing elit. Proin lacus velit, scelerisque ut vehicula ac, dictum eu nulla. Suspendisse id nunc congue, vestibulum dui rutrum, tincidunt mauris. Integer non tortor efficitur, pharetra nisl sed, sagittis ex. Quisque viverra nunc eget massa pellentesque efficitur. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aliquam erat volutpat. Cras ullamcorper vehicula dolor, nec cursus nisi. Sed dapibus, nisl a consectetur vestibulum, neque augue aliquam orci, sit amet posuere dolor mauris et dui. Suspendisse et leo id orci facilisis auctor vitae nec arcu. Aenean porta leo nec felis posuere, varius tempor augue viverra. Sed tristique pretium elit, in lacinia lacus rhoncus porta. In gravida ultricies leo, id aliquam elit ultricies vitae. Morbi in lobortis neque, eget malesuada mi. Donec pellentesque semper pulvinarLorem ipsum dolor sit amet, consectetur adipiscing elit. Proin lacus velit, scelerisque ut vehicula ac, dictum eu nulla. Suspendisse id nunc congue, vestibulum dui rutrum, tincidunt mauris. Integer non tortor efficitur, pharetra nisl sed, sagittis ex. Quisque viverra nunc eget massa pellentesque efficitur. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aliquam erat volutpat. Cras ullamcorper vehicula dolor, nec cursus nisi. Sed dapibus, nisl a consectetur vestibulum, neque augue aliquam orci, sit amet posuere dolor mauris et dui. Suspendisse et leo id orci facilisis auctor vitae nec arcu. Aenean porta leo nec felis posuere, varius tempor augue viverra. Sed tristique pretium elit, in lacinia lacus rhoncus porta. In gravida ultricies leo, id aliquam elit ultricies vitae. Morbi in lobortis neque, eget malesuada mi. Donec pellentesque semper pulvinarLorem ipsum dolor sit amet, consectetur adipiscing elit. Proin lacus velit, scelerisque ut vehicula ac, dictum eu nulla. Suspendisse id nunc congue, vestibulum dui rutrum, tincidunt mauris. Integer non tortor efficitur, pharetra nisl sed, sagittis ex. Quisque viverra nunc eget massa pellentesque efficitur. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aliquam erat volutpat. Cras ullamcorper vehicula dolor, nec cursus nisi. Sed dapibus, nisl a consectetur vestibulum, neque augue aliquam orci, sit amet posuere dolor mauris et dui. Suspendisse et leo id orci facilisis auctor vitae nec arcu. Aenean porta leo nec felis posuere, varius tempor augue viverra. Sed tristique pretium elit, in lacinia lacus rhoncus porta. In gravida ultricies leo, id aliquam elit ultricies vitae. Morbi in lobortis neque, eget malesuada mi. Donec pellentesque semper pulvinar";
-                                correctAnswer=correctAnswer.replaceAt(1953,(foundQuestions[f].answer));
+                   		Codingproblem.find({test : test.name}, function(err, foundCodingPbs) {
+                    		if(err) {
+                        		console.log("Error occured while fetching data from database!");
+                        		res.redirect("/createtest");
+                    		} else {
+                        		Test.find({_id : id}, function(err, foundD) {
+                          			if(err) {
+                            			console.log(err);
+                          			} else {
+                            			String.prototype.replaceAt = function(index, replacement) {
+                                			return this.substr(0, index) + replacement + this.substr(index + replacement.length);
+                            			}
+										
+										var date = foundD[0].date;
+                            			var duration = foundD[0].duration;
+										
+										duration = duration * 60;
+										
+										var myQuestions = [];
+										
+										for(var f = 0; f < foundQuestions.length; f++) {
+                                			var question = foundQuestions[f].question;
+                                			var a = foundQuestions[f].option1;
+                                			var b = foundQuestions[f].option2;
+                                			var c = foundQuestions[f].option3;
+                                			var d= foundQuestions[f].option4;
+                                			var correctAnswer = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin lacus velit, scelerisque ut vehicula ac, dictum eu nulla. Suspendisse id nunc congue, vestibulum dui rutrum, tincidunt mauris. Integer non tortor efficitur, pharetra nisl sed, sagittis ex. Quisque viverra nunc eget massa pellentesque efficitur. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aliquam erat volutpat. Cras ullamcorper vehicula dolor, nec cursus nisi. Sed dapibus, nisl a consectetur vestibulum, neque augue aliquam orci, sit amet posuere dolor mauris et dui. Suspendisse et leo id orci facilisis auctor vitae nec arcu. Aenean porta leo nec felis posuere, varius tempor augue viverra. Sed tristique pretium elit, in lacinia lacus rhoncus porta. In gravida ultricies leo, id aliquam elit ultricies vitae. Morbi in lobortis neque, eget malesuada mi. Donec pellentesque semper pulvinarLorem ipsum dolor sit amet, consectetur adipiscing elit. Proin lacus velit, scelerisque ut vehicula ac, dictum eu nulla. Suspendisse id nunc congue, vestibulum dui rutrum, tincidunt mauris. Integer non tortor efficitur, pharetra nisl sed, sagittis ex. Quisque viverra nunc eget massa pellentesque efficitur. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aliquam erat volutpat. Cras ullamcorper vehicula dolor, nec cursus nisi. Sed dapibus, nisl a consectetur vestibulum, neque augue aliquam orci, sit amet posuere dolor mauris et dui. Suspendisse et leo id orci facilisis auctor vitae nec arcu. Aenean porta leo nec felis posuere, varius tempor augue viverra. Sed tristique pretium elit, in lacinia lacus rhoncus porta. In gravida ultricies leo, id aliquam elit ultricies vitae. Morbi in lobortis neque, eget malesuada mi. Donec pellentesque semper pulvinarLorem ipsum dolor sit amet, consectetur adipiscing elit. Proin lacus velit, scelerisque ut vehicula ac, dictum eu nulla. Suspendisse id nunc congue, vestibulum dui rutrum, tincidunt mauris. Integer non tortor efficitur, pharetra nisl sed, sagittis ex. Quisque viverra nunc eget massa pellentesque efficitur. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aliquam erat volutpat. Cras ullamcorper vehicula dolor, nec cursus nisi. Sed dapibus, nisl a consectetur vestibulum, neque augue aliquam orci, sit amet posuere dolor mauris et dui. Suspendisse et leo id orci facilisis auctor vitae nec arcu. Aenean porta leo nec felis posuere, varius tempor augue viverra. Sed tristique pretium elit, in lacinia lacus rhoncus porta. In gravida ultricies leo, id aliquam elit ultricies vitae. Morbi in lobortis neque, eget malesuada mi. Donec pellentesque semper pulvinarLorem ipsum dolor sit amet, consectetur adipiscing elit. Proin lacus velit, scelerisque ut vehicula ac, dictum eu nulla. Suspendisse id nunc congue, vestibulum dui rutrum, tincidunt mauris. Integer non tortor efficitur, pharetra nisl sed, sagittis ex. Quisque viverra nunc eget massa pellentesque efficitur. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aliquam erat volutpat. Cras ullamcorper vehicula dolor, nec cursus nisi. Sed dapibus, nisl a consectetur vestibulum, neque augue aliquam orci, sit amet posuere dolor mauris et dui. Suspendisse et leo id orci facilisis auctor vitae nec arcu. Aenean porta leo nec felis posuere, varius tempor augue viverra. Sed tristique pretium elit, in lacinia lacus rhoncus porta. In gravida ultricies leo, id aliquam elit ultricies vitae. Morbi in lobortis neque, eget malesuada mi. Donec pellentesque semper pulvinarLorem ipsum dolor sit amet, consectetur adipiscing elit. Proin lacus velit, scelerisque ut vehicula ac, dictum eu nulla. Suspendisse id nunc congue, vestibulum dui rutrum, tincidunt mauris. Integer non tortor efficitur, pharetra nisl sed, sagittis ex. Quisque viverra nunc eget massa pellentesque efficitur. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aliquam erat volutpat. Cras ullamcorper vehicula dolor, nec cursus nisi. Sed dapibus, nisl a consectetur vestibulum, neque augue aliquam orci, sit amet posuere dolor mauris et dui. Suspendisse et leo id orci facilisis auctor vitae nec arcu. Aenean porta leo nec felis posuere, varius tempor augue viverra. Sed tristique pretium elit, in lacinia lacus rhoncus porta. In gravida ultricies leo, id aliquam elit ultricies vitae. Morbi in lobortis neque, eget malesuada mi. Donec pellentesque semper pulvinar";
+                                			correctAnswer = correctAnswer.replaceAt(1953, (foundQuestions[f].answer));
                                 
-                                var ob={
-                                
-                                  question:question,
-                                
-                                  answers: {
-                                  a: a,
-                                  b: b,
-                                  c: c,
-                                  d: d
-                                },
-                                
-                                correctAnswer: correctAnswer
-                              };
-                              myQuestions.push(ob);
-                          }
+                                			var ob = {
+                                				question : question,
+                            					answers: {
+                                  					a : a,
+                                  					b : b,
+                                  					c : c,
+                                  					d : d
+                                				},
+                                				correctAnswer : correctAnswer
+                              				};
+											  
+											myQuestions.push(ob);
+                          				}
                           
-                          res.render("test", {testid:req.params.id,foundQuestions : myQuestions, date : date, duration : duration, foundCodingProblems : foundCodingPbs,stuid:req.params.stuid});
-                            }
-                        });
-                    }
-                });
-
-               }
-           });
-           } else {
-            var availDateObject = new Date(Date.parse(dateExam));
-            res.render("testCurrentlyNotstudent",{availableAt:availDateObject,stuid:req.params.stuid});
-           }
-        
+                          				res.render("test", {testid : req.params.id, foundQuestions : myQuestions, date : date, duration : duration, foundCodingProblems : foundCodingPbs, stuid : req.params.stuid});
+                            		}
+                        		});
+                    		}
+                		});
+               		}
+           		});
+           	} else {
+            	var availDateObject = new Date(Date.parse(dateExam));
+            	res.render("testCurrentlyNotstudent", {availableAt : availDateObject, stuid : req.params.stuid});
+           	}
         }
-      });
-  });
+    });
+});
 
 //student result
 app.post("/:testid/:stuid/studentresult",function(req,res){
