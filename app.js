@@ -996,11 +996,22 @@ app.get(("/viewcandidates"), middleware.checkIsCompany, function(req, res){
       res.render("viewcandidates", {candidates : candidates});
     }
   })
-})
+});
+
+app.get(("/updatecandidate/:stuid"), function(req, res) {
+  Candidate.updateOne({username : req.params.stuid}, {$set: {isLoggedIn : false}}, function(err) {
+      if(err) {
+        console.log(err);
+      } else {
+        res.redirect("/viewcandidates");
+      }
+  })
+  res.redirect("/company");
+});
 
 //Viewing test results for the admin of particular test
-app.get(("/:testid/results"),function(req,res){
-  Test.findOne({_id:req.params.testid},function(err,foundt){
+app.get(("/:testid/results"), function(req, res){
+  Test.findOne({_id : req.params.testid},function(err,foundt){
     var resul=[];
     for(var t=0;t<foundt.candidates.length;t++){
       Candidate.findOne({_id:foundt.candidates[t]},function(err,std){
@@ -1024,7 +1035,7 @@ app.get(("/:testid/results"),function(req,res){
 
 //Logout logic
 app.get("/:stuid/studentLogout", function(req, res) { // for students
-    Candidate.updateOne({username: req.params.stuid}, {$set: {isLoggedIn: false}},function(err){
+    Candidate.updateOne({username: req.params.stuid}, {$set: {isLoggedIn: false}}, function(err) {
       console.log(err);
     });
     //req.body.isLoggedIn = false;
@@ -1038,6 +1049,7 @@ app.get("/studentLogout", function(req, res) {    //for company
     req.flash("success", "Logged out successfully!");
     res.redirect("/");
 })
+
 //Comment, Do not erase
 app.listen(process.env.PORT||3000, function(){
     console.log("SERVER HAS STARTED!");

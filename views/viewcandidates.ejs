@@ -11,6 +11,11 @@
                 <td> <%= candidates[i].name %> </td>
                 <td> <%= candidates[i].username %> </td>
                 <td> <%= candidates[i].isLoggedIn %> </td>
+                <td>
+                    <a href="/updatecandidate/<%=candidates[i].username%>">
+                        <button>Update Details</button>
+                    </a>
+                </td>
             </tr>
         <% } %>
     </table> 
