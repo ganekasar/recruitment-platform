@@ -989,7 +989,13 @@ app.get(("/viewresults"), middleware.checkIsCompany,function(req,res){
 });
 
 app.get(("/viewcandidates"), middleware.checkIsCompany, function(req, res){
-  
+  Candidate.find({}, function(err, candidates) {
+    if(err) {
+      console.log(err);
+    } else {
+      res.render("viewcandidates", {candidates : candidates});
+    }
+  })
 })
 
 //Viewing test results for the admin of particular test

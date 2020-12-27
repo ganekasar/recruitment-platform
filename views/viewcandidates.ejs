@@ -1,3 +1,18 @@
 <%- include("partials/header") %>
 
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Username</th>
+            <th>Is Logged In</th>
+        </tr>
+        <% for(var i = 0; i < candidates.length; i++) { %>
+            <tr>
+                <td> <%= candidates[i].name %> </td>
+                <td> <%= candidates[i].username %> </td>
+                <td> <%= candidates[i].isLoggedIn %> </td>
+            </tr>
+        <% } %>
+    </table> 
+
 <%- include("partials/footer") %>
