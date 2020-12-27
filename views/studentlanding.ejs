@@ -146,20 +146,23 @@
         <div>
 
 <script type="text/javascript">
-  var st=<%- JSON.stringify(sendtest)%>;
-  var le=<%=sendtest.length%>;
+  var st = <%- JSON.stringify(sendtest)%>;
+  var le = <%=sendtest.length%>;
   console.log(le);
-  var sr=<%-JSON.stringify (stuid) %>
+  var sr = <%-JSON.stringify (stuid) %>
 </script>
+
 <% if(sendtest.length == 0){ %>
-  <h1>No Available Test</h1>
+  <h2>No Available Test</h2>
 <% } else {%>
-  <h1>Available Test</h1>
+  <h2>Available Tests</h2>
 <% } %>
 <% for(var i = 0; i < sendtest.length; i++) { %>
-    <h1> <%=sendtest[i].name%> </h1>
+    <h2> Title : <%=sendtest[i].name%> </h2>
     <br>
-    <a href='/<%= stuid %>/<%=sendtest[i].id%>/registerteststudent'>Register Here</a>
+    <a href='/<%= stuid %>/<%=sendtest[i].id%>/registerteststudent'>
+        <button type="submit" class="btn btn-success">Register</button>    
+    </a>
 <% } %>
 
 <%- include("partials/footer") %>

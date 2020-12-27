@@ -130,7 +130,24 @@
 
         </nav>
 
-          <a href="/start/<%= stuid %>/<%= id %>/viewtest">Start Test</a>
+        <div class="container">
+            <h2 style="color: red;">
+                Note: 
+                <br>
+                1. Once you click start, your test will be started immediately.
+                <br>
+                2. Currently supports on PC/Laptops only
+                <br>
+                3. Don't Change Browser Tab, else your test will be submitted automatically and you will get 0 marks
+            </h2>
+        </div>
+
+        <div class="container">
+            <a href="/start/<%= stuid %>/<%= id %>/viewtest">
+                <button type="submit" class="btn btn-success btn-lg">Start Test</button>
+            </a>
+        </div>
+
           <script type="text/javascript">
             function preventBack() {
                 window.history.forward();

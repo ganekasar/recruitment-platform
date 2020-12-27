@@ -129,25 +129,28 @@
             </div>
 
         </nav>
-        <h5>Date Format: YYYY/MM/DD</h5>
-        <%for(let o=0;o<pro.length;o++){%>
-          <% for(let y=0;y<pro[o].length;y++){ %>
-            <% if(y==0){ %>
-              <h1> <%= pro[o][y] %> </h1>
-            <% }else if(y==1){ %>
-              <h3>Date: <%for(var i=0;i<19;i++){%>
-                <% if(i!=10){%>
+        <h5>Date Format: YYYY / MM / DD</h5>
+        
+        <%for(let o = 0; o < pro.length; o++) { %>
+          <% for(let y = 0; y < pro[o].length; y++) { %>
+            <% if(y == 0) { %>
+              <h1> <%=pro[o][y]%> </h1>
+            <% } else if (y == 1) { %>
+              <h3>Date: <% for(var i = 0; i < 19; i++) { %>
+                <% if(i != 10) { %>
 
-                <%=(pro[o][y][i])%>
-               <%}  else{ %>
+                <%= (pro[o][y][i]) %>
+               <% } else { %>
                  Time:
              <%}} %> IST</h3>
               <br>
-          <% } else if(y==2){%>
-            <h3>Duration:  <%=(pro[o][y])%> minutes</h3>
+          <% } else if(y == 2) { %>
+            <h3>Duration: <%= (pro[o][y]) %> minutes</h3>
             <br>
-        <%}else{%>
-            <h3><a href="/<%= stuid %>/<%=(pro[o][y]) %>/viewtest" >Start</a></h3><br>
+        <% } else { %>
+            <h3><a href="/<%= stuid %>/<%=(pro[o][y]) %>/viewtest" >
+              <button type="submit" class="btn btn-success btn-lg">Start Test</button>
+            </a></h3><br>
         <%}}}%>
 
 <%- include("partials/footer") %>

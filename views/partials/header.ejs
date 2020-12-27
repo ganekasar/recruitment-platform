@@ -125,14 +125,14 @@ th, td {
         <nav class="navbar navbar-default">
             <div class = "nav-style">
                 <div class="navbar-header" >
-                    <a href="#" class="navbar-brand">+ONE</a>
+                    <a href="/" class="navbar-brand">+ONE</a>
                 </div>
                 <ul class="nav navbar-nav">
                     <% if(!currentUser){ %>
                         <li><a href="/studentLogin">Login</a></li>
                         <li><a href="/studentRegister">Signup</a></li>
                     <% } else { %>
-                        <li><a href="#">Signed in as <%= currentUser.name%></a></li>
+                        <li><a href="/">Signed in as <%= currentUser.name%></a></li>
                         <li><a href="/studentLogout">Logout</a></li>
                     <% }%>
 
