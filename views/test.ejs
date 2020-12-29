@@ -19,20 +19,23 @@ h1{
   color: #fff;
 }
 .question{
-  font-size: 35px;
+  font-size: 20px;
   margin-bottom: 10px;
+  position:relative;
+  word-break: break-word;
 }
 .answers {
-  margin-bottom: 20px;
+  margin-bottom: 40px;
   text-align: left;
   display: inline-block;
+  position:relative;
 }
 .answers label{
   display: block;
   margin-bottom: 10px;
 }
 button{
-  font-family: 'Work Sans', sans-serif;
+  font-family: 'Work Sansposition:relative;', sans-serif;
   font-size: 15px;
   background-color: #279;
   color: #fff;
@@ -40,7 +43,9 @@ button{
   border-radius: 3px;
   padding: 13px;
   cursor: pointer;
+  margin-top: 50px;
   margin-bottom: 20px;
+  position:relative;
 }
 button:hover{
   background-color: #38a;
@@ -57,6 +62,7 @@ button:hover{
   z-index: 1;
   opacity: 0;
   transition: opacity 0.5s;
+  margin-bottom: 50px;
 }
 .active-slide{
   opacity: 1;
@@ -133,7 +139,7 @@ body:-ms-fullscreen {
 }
   </style>
 </head>
-<body id="body" >
+<body id="body" class="noselect" >
 <ul>
   <br>
   <li>Question Palette</li><br>
@@ -169,7 +175,7 @@ body:-ms-fullscreen {
       //  let myVar;
         var second=10;
         const escapepress = document.getElementById('time');
-        escapepress.innerHTML="Don't press 'Esc' key during the exam as it will end the test and your score will be zero."
+        escapepress.innerHTML="Don't change tab during the exam as it will end the test and your score will be zero."
         escapepress.style.color="red";
         // function fullscreenstoptimer()
         // {
@@ -210,7 +216,7 @@ body:-ms-fullscreen {
      {
         var myVar;
         if (!document.fullscreenElement) {
-          alert("Outside the FullScreen Mode!!!! Your Test is over");
+          alert("Outside !!! Your Test is over");
           //showResults();
             let myForm = document.querySelector("form");
             let submitButton = myForm.querySelector("submit");
