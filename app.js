@@ -1011,23 +1011,34 @@ app.get(("/updatecandidate/:stuid"), function(req, res) {
 app.get(("/:testid/results"), function(req, res){
   Test.findOne({_id : req.params.testid},function(err,foundt){
     var resul=[];
-    for(var t=0;t<foundt.candidates.length;t++){
-      Candidate.findOne({_id:foundt.candidates[t]},function(err,std){
-          var temp=[];
-          temp.push(std.name);
-          temp.push(std.username);
-          for(var f=0;f<std.submitted.length;f++){
-            if(std.submitted[f].toString()== req.params.testid.toString()){
-              temp.push(std.result[f]);
-              break;
-            }
+    Candidate.find({'_id': { $in : foundt.candidates}},function(err,stdlist){
+      for(var t=0;t<stdlist.length;t++){
+        var temp=[];
+        var iddd=req.params.testid;
+        temp.push(stdlist[t].name);
+        temp.push(stdlist[t].username);
+        for(var f=0;f<stdlist[t].submitted.length;f++){
+          if(stdlist[t].submitted[f].toString()== iddd.toString()){
+              temp.push(stdlist[t].result[f]);
+            break;
           }
-          resul.push(temp);
-          if(t == foundt.candidates.length ){ // removed && resul.length == t
-            res.render("showresult",{result:resul,testid:req.params.testid,testname:foundt.name});
-          }
-      });
-    }
+        }
+        if(f==stdlist[t].submitted.length)
+          temp.push(0);
+        resul.push(temp);
+      }
+      res.render("showresult",{result:resul,testid:req.params.testid,testname:foundt.name});
+    });
+    // for(var t=0;t<foundt.candidates.length;t++){
+    //   console.log("d");
+    //   console.log(t);
+    //   Candidate.findOne({_id:foundt.candidates[t]},function(err,std){
+    //       if(t == foundt.candidates.length){ // removed && resul.length == t
+    //         console.log("ss");
+    //         res.render("showresult",{result:resul,testid:req.params.testid,testname:foundt.name});
+    //       }
+    //   });
+    // }
   });
 });
 
