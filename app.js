@@ -25,8 +25,8 @@ mongoose.connect("mongodb://localhost/project", {useNewUrlParser: true, useUnifi
 
 /*
 ================================================================================================
-    PASSPORT CONFIGURATION   
-================================================================================================ 
+    PASSPORT CONFIGURATION
+================================================================================================
 */
 
 app.use(require("express-session") ({
@@ -84,11 +84,11 @@ app.get("/createtest", middleware.checkIsCompany, function(req, res) {
 
 app.post("/createtest", function(req, res) {
     const name = req.body.name;
-    
+
     let duration = req.body.duration;
     let date = req.body.date;
     let time = req.body.time;
-    
+
     date = date + "T" + time + ":00Z";
 
     const item = new Test( {
@@ -195,7 +195,7 @@ app.post("/managetest", function(req, res) {
 app.get("/sharetestlink", middleware.checkIsCompany, function(req, res) {
   var sendtest = [];
   var todaydate = Date.parse((new Date()).toISOString())+19800000;
-  
+
   var date_diff_indays = function(date1, date2) { //Function to return seconds difference between current date and exam date
      dt1 = new Date(date1);
      dt2 = new Date(date2);
@@ -211,13 +211,13 @@ app.get("/sharetestlink", middleware.checkIsCompany, function(req, res) {
         var timediff  = date_diff_indays(todaydate,Date.parse(foundtest[i].date.toISOString()));
         var dur = foundtest[i].duration;
         dur = dur*60;
-       
+
         if(timediff + dur > 0) {
           sendtest.push(foundtest[i]);
         }
      }
     }
-    
+
     res.render("sharewhichtest",{tests:sendtest});
   });
 });
@@ -249,7 +249,7 @@ app.post("/:testid/sharetestlink", function(req, res) {
       });
 
     var idlist=[];
-    
+
     Test.findOne({_id:req.params.testid}, function(err, testsendmail) {
         if(err) {
           console.log(err);
@@ -259,7 +259,7 @@ app.post("/:testid/sharetestlink", function(req, res) {
           }
 
           var maillist=[];
-          
+
           Candidate.find({'_id': { $in : idlist}}, function(err, docs) {
                for(var i = 0;i < docs.length; i++){
                  maillist.push(docs[i].username);
@@ -272,7 +272,7 @@ app.post("/:testid/sharetestlink", function(req, res) {
                  text: 'https://plusone.ganeshkasar.live/'
                };
 
-            
+
               var j = schedule.scheduleJob(date, function() {
                 console.log('The world is going to end today.');
                  transporter.sendMail(mailOptions, function (error, info) {
@@ -291,11 +291,11 @@ app.post("/:testid/sharetestlink", function(req, res) {
 
 
 app.get("/signup", function(req, res){
-    res.render("signup");                     
+    res.render("signup");
 });
 
 app.get("/login", function(req, res){
-    res.render("login");                  
+    res.render("login");
 });
 
 app.get("/:id/test", function(req, res) {
@@ -334,11 +334,11 @@ app.get("/:id/test", function(req, res) {
                       else {
                         var date = foundD[0].date;
                         var duration = foundD[0].duration;
-                        
+
                         duration=duration*60;
-                        
+
                         var myQuestions = [];
-                        
+
                         for(var f = 0; f < foundQuestions.length; f++) {
                             var question = foundQuestions[f].question;
                             var a= foundQuestions[f].option1;
@@ -391,13 +391,13 @@ app.get("/:id/viewtest", function(req, res){ //Test can only be viewed if the te
   const test = new Test({
     name:req.params.id
   });
-  
+
   const id = test.name;
   var dateExam;
   var duration;
-  
+
   let one =9;
-  
+
   Test.find({_id:id},function(err,dateFound){
     if(err){
       console.log("Error from test db about date");
@@ -409,20 +409,20 @@ app.get("/:id/viewtest", function(req, res){ //Test can only be viewed if the te
           dt2 = new Date(date2);
           return ((Date.UTC(dt2.getFullYear(), dt2.getMonth(), dt2.getDate(),dt2.getHours(),dt2.getMinutes(),dt2.getSeconds()) - Date.UTC(dt1.getFullYear(), dt1.getMonth(), dt1.getDate(),dt1.getHours(),dt1.getMinutes(),dt1.getSeconds()) ) /(1000));
        }
-  
+
        dateExam=dateFound[0].date;
        dateExam.setMinutes(dateExam.getMinutes()-330);
-  
+
        var curDate = new Date();
-  
+
        curDate= curDate.toISOString();
        dateExam = dateExam.toISOString();
-  
+
        var timeDiff  = date_diff_indays(dateExam,curDate);
-  
+
        duration=dateFound[0].duration;
        duration = duration * 60;
-  
+
        if(duration >= timeDiff && timeDiff >= 0) {
 
         Question.find({test : id}, function(err, foundQuestions) {
@@ -468,7 +468,7 @@ app.get("/:id/viewtest", function(req, res){ //Test can only be viewed if the te
                           };
                           myQuestions.push(ob);
                       }
-                      
+
                       res.render("oldtest", {testid:req.params.id,foundQuestions : myQuestions, date : date, duration : duration, foundCodingProblems : foundCodingPbs});
                         }
                     });
@@ -498,9 +498,9 @@ app.get("/:id/viewtest", function(req, res){ //Test can only be viewed if the te
     var dateExam;
     var duration;
     let one = 9;
-      
+
     Candidate.findOne({username : req.params.stuid}, function(err, stude){
-        
+
         for(let i = 0; i < stude.submitted.length; i++) {
           	if(stude.submitted[i].toString() == req.params.id.toString()) {
             	if(stude.yesorno[i] === true) {
@@ -509,7 +509,7 @@ app.get("/:id/viewtest", function(req, res){ //Test can only be viewed if the te
           	}
         }
     });
-      
+
     Test.find({_id : id}, function(err, dateFound) {
         if(err) {
         	console.log("Error from test db about date");
@@ -523,17 +523,17 @@ app.get("/:id/viewtest", function(req, res){ //Test can only be viewed if the te
 
            	dateExam = dateFound[0].date;
            	dateExam.setMinutes(dateExam.getMinutes() - 330);
-           
+
            	var curDate = new Date();
-           
+
            	curDate = curDate.toISOString();
            	dateExam = dateExam.toISOString();
-           
+
            	var timeDiff  = date_diff_indays(dateExam, curDate);
-           
+
            	duration = dateFound[0].duration;
            	duration = duration * 60;
-           
+
            	if(duration >= timeDiff && timeDiff >= 0) {
 
             	Question.find({test : id}, function(err, foundQuestions) {
@@ -556,14 +556,14 @@ app.get("/:id/viewtest", function(req, res){ //Test can only be viewed if the te
                             			String.prototype.replaceAt = function(index, replacement) {
                                 			return this.substr(0, index) + replacement + this.substr(index + replacement.length);
                             			}
-										
+
 										var date = foundD[0].date;
                             			var duration = foundD[0].duration;
-										
+
 										duration = duration * 60;
-										
+
 										var myQuestions = [];
-										
+
 										for(var f = 0; f < foundQuestions.length; f++) {
                                 			var question = foundQuestions[f].question;
                                 			var a = foundQuestions[f].option1;
@@ -572,7 +572,7 @@ app.get("/:id/viewtest", function(req, res){ //Test can only be viewed if the te
                                 			var d= foundQuestions[f].option4;
                                 			var correctAnswer = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin lacus velit, scelerisque ut vehicula ac, dictum eu nulla. Suspendisse id nunc congue, vestibulum dui rutrum, tincidunt mauris. Integer non tortor efficitur, pharetra nisl sed, sagittis ex. Quisque viverra nunc eget massa pellentesque efficitur. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aliquam erat volutpat. Cras ullamcorper vehicula dolor, nec cursus nisi. Sed dapibus, nisl a consectetur vestibulum, neque augue aliquam orci, sit amet posuere dolor mauris et dui. Suspendisse et leo id orci facilisis auctor vitae nec arcu. Aenean porta leo nec felis posuere, varius tempor augue viverra. Sed tristique pretium elit, in lacinia lacus rhoncus porta. In gravida ultricies leo, id aliquam elit ultricies vitae. Morbi in lobortis neque, eget malesuada mi. Donec pellentesque semper pulvinarLorem ipsum dolor sit amet, consectetur adipiscing elit. Proin lacus velit, scelerisque ut vehicula ac, dictum eu nulla. Suspendisse id nunc congue, vestibulum dui rutrum, tincidunt mauris. Integer non tortor efficitur, pharetra nisl sed, sagittis ex. Quisque viverra nunc eget massa pellentesque efficitur. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aliquam erat volutpat. Cras ullamcorper vehicula dolor, nec cursus nisi. Sed dapibus, nisl a consectetur vestibulum, neque augue aliquam orci, sit amet posuere dolor mauris et dui. Suspendisse et leo id orci facilisis auctor vitae nec arcu. Aenean porta leo nec felis posuere, varius tempor augue viverra. Sed tristique pretium elit, in lacinia lacus rhoncus porta. In gravida ultricies leo, id aliquam elit ultricies vitae. Morbi in lobortis neque, eget malesuada mi. Donec pellentesque semper pulvinarLorem ipsum dolor sit amet, consectetur adipiscing elit. Proin lacus velit, scelerisque ut vehicula ac, dictum eu nulla. Suspendisse id nunc congue, vestibulum dui rutrum, tincidunt mauris. Integer non tortor efficitur, pharetra nisl sed, sagittis ex. Quisque viverra nunc eget massa pellentesque efficitur. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aliquam erat volutpat. Cras ullamcorper vehicula dolor, nec cursus nisi. Sed dapibus, nisl a consectetur vestibulum, neque augue aliquam orci, sit amet posuere dolor mauris et dui. Suspendisse et leo id orci facilisis auctor vitae nec arcu. Aenean porta leo nec felis posuere, varius tempor augue viverra. Sed tristique pretium elit, in lacinia lacus rhoncus porta. In gravida ultricies leo, id aliquam elit ultricies vitae. Morbi in lobortis neque, eget malesuada mi. Donec pellentesque semper pulvinarLorem ipsum dolor sit amet, consectetur adipiscing elit. Proin lacus velit, scelerisque ut vehicula ac, dictum eu nulla. Suspendisse id nunc congue, vestibulum dui rutrum, tincidunt mauris. Integer non tortor efficitur, pharetra nisl sed, sagittis ex. Quisque viverra nunc eget massa pellentesque efficitur. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aliquam erat volutpat. Cras ullamcorper vehicula dolor, nec cursus nisi. Sed dapibus, nisl a consectetur vestibulum, neque augue aliquam orci, sit amet posuere dolor mauris et dui. Suspendisse et leo id orci facilisis auctor vitae nec arcu. Aenean porta leo nec felis posuere, varius tempor augue viverra. Sed tristique pretium elit, in lacinia lacus rhoncus porta. In gravida ultricies leo, id aliquam elit ultricies vitae. Morbi in lobortis neque, eget malesuada mi. Donec pellentesque semper pulvinarLorem ipsum dolor sit amet, consectetur adipiscing elit. Proin lacus velit, scelerisque ut vehicula ac, dictum eu nulla. Suspendisse id nunc congue, vestibulum dui rutrum, tincidunt mauris. Integer non tortor efficitur, pharetra nisl sed, sagittis ex. Quisque viverra nunc eget massa pellentesque efficitur. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aliquam erat volutpat. Cras ullamcorper vehicula dolor, nec cursus nisi. Sed dapibus, nisl a consectetur vestibulum, neque augue aliquam orci, sit amet posuere dolor mauris et dui. Suspendisse et leo id orci facilisis auctor vitae nec arcu. Aenean porta leo nec felis posuere, varius tempor augue viverra. Sed tristique pretium elit, in lacinia lacus rhoncus porta. In gravida ultricies leo, id aliquam elit ultricies vitae. Morbi in lobortis neque, eget malesuada mi. Donec pellentesque semper pulvinar";
                                 			correctAnswer = correctAnswer.replaceAt(1953, (foundQuestions[f].answer));
-                                
+
                                 			var ob = {
                                 				question : question,
                             					answers: {
@@ -583,10 +583,10 @@ app.get("/:id/viewtest", function(req, res){ //Test can only be viewed if the te
                                 				},
                                 				correctAnswer : correctAnswer
                               				};
-											  
+
 											myQuestions.push(ob);
                           				}
-                          
+
                           				res.render("test", {testid : req.params.id, foundQuestions : myQuestions, date : date, duration : duration, foundCodingProblems : foundCodingPbs, stuid : req.params.stuid});
                             		}
                         		});
@@ -659,7 +659,7 @@ app.post("/studentRegister", function(req, res) {
             console.log(err);
             return res.render("studentRegister", {error: err.message});
         }
-        
+
         passport.authenticate("local") (req, res, function() {
             req.flash("success", "Welcome " + newCandidate.name + "!");
             if(req.body.username === 'iamadmin@gmail.com' && req.body.password === 'admin123'){
@@ -674,7 +674,7 @@ app.post("/studentRegister", function(req, res) {
               }
 
               Test.find({},function(err,foundtest){
-              
+
                 if(err) {
                  console.log(err);
                } else {
@@ -682,7 +682,7 @@ app.post("/studentRegister", function(req, res) {
                    var timediff = date_diff_indays(todaydate,Date.parse(foundtest[i].date.toISOString()));
                    var dur = foundtest[i].duration;
                    dur = dur*60;
-                   
+
                    if(timediff + dur > 0) {
                     sendtest.push(foundtest[i]);
                   }
@@ -1023,7 +1023,7 @@ app.get(("/:testid/results"), function(req, res){
             }
           }
           resul.push(temp);
-          if(t == foundt.candidates.length && resul.length == t){
+          if(t == foundt.candidates.length ){ // removed && resul.length == t
             res.render("showresult",{result:resul,testid:req.params.testid,testname:foundt.name});
           }
       });
