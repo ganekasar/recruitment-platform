@@ -1025,6 +1025,7 @@ app.get(("/:testid/results"), function(req, res){
         }
         if(f==stdlist[t].submitted.length)
           temp.push(0);
+        temp.push(stdlist[t].prn);
         resul.push(temp);
       }
       res.render("showresult",{result:resul,testid:req.params.testid,testname:foundt.name});
