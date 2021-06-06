@@ -11,7 +11,7 @@ middlewareObj.checkIsCompany = function(req, res, next){
         else{
             req.flash("error", "Authorization Denied!!");
             console.log('You are not authorized!');
-            res.redirect("back");
+            res.redirect("/studentlogin");
         }
             
     }

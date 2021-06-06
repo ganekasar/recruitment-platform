@@ -1,15 +1,15 @@
-const express         = require("express"),
-      mongoose        = require("mongoose"),
-      passport        = require("passport"),
-      LocalStrategy   = require("passport-local"),
-      bodyParser      = require("body-parser"),
-      flash           = require("connect-flash"),
-      Candidate       = require("./models/candidate"),
-      Test            = require("./models/test"),
-      Question        = require("./models/question"),
-      Response        = require("./models/response"),
-      Codingproblem   = require("./models/codingproblem"),
-      middleware      = require("./middleware");
+const express         = require('express'),
+      mongoose        = require('mongoose'),
+      passport        = require('passport'),
+      LocalStrategy   = require('passport-local'),
+      bodyParser      = require('body-parser'),
+      flash           = require('connect-flash'),
+      Candidate       = require('./models/candidate'),
+      Test            = require('./models/test'),
+      Question        = require('./models/question'),
+      Response        = require('./models/response'),
+      Codingproblem   = require('./models/codingproblem'),
+      middleware      = require('./middleware');
 
 const app = express();
 
@@ -21,7 +21,6 @@ app.use(bodyParser.urlencoded({extended : true}));
 app.use(express.static(__dirname + "/public"));
 
 mongoose.connect("mongodb://localhost/project", {useNewUrlParser: true, useUnifiedTopology: true});
-
 
 /*
 ================================================================================================
@@ -54,13 +53,13 @@ app.use(function(req, res, next) {
 
 app.get("/", function(req, res) {
     if(req.user) { // IF ALREADY LOGGED IN
-      if(req.user.username == "iamadmin@gmail.com") {
-        res.redirect("/company"); // IF USER IS ADMIN
-      } else {
-        res.redirect("/" + req.user.username + "/studentlanding"); // IF NOT ADMIN
-      }
+      	if(req.user.isAdmin) {
+        	res.redirect("/company"); // IF USER IS ADMIN
+      	} else {
+        	res.redirect("/" + req.user.username + "/studentlanding"); // IF NOT ADMIN
+      	}
     } else {
-      res.render("landing");
+      	res.render("landing");
     }
 });
 
@@ -127,25 +126,6 @@ app.get("/:id/managetest", function(req, res) {
     const test = req.params.id;
 
     res.render("managetest", {test: test});
-
-    // Test.find({_id: test}, function(err, foundTest) {
-    //     if(err) {
-    //         res.redirect("/createtest");
-    //     } else {
-
-
-    //         // Question.find({}, function(err, foundQuestions) {
-    //         //     if(err) {
-    //         //         console.log("Error occured while fetching data from database!");
-    //         //         res.redirect("/createtest");
-    //         //     } else {
-    //         //         res.render("test", {foundQuestions: foundQuestions});
-    //         //     }
-    //         // });
-    //     }
-    // });
-
-    //res.render("managetest");
 });
 
 app.post("/managetest", function(req, res) {
@@ -193,33 +173,32 @@ app.post("/managetest", function(req, res) {
 });
 
 app.get("/sharetestlink", middleware.checkIsCompany, function(req, res) {
-  var sendtest = [];
-  var todaydate = Date.parse((new Date()).toISOString())+19800000;
+  	var sendtest = [];
+  	var todaydate = Date.parse((new Date()).toISOString()) + 19800000;
 
-  var date_diff_indays = function(date1, date2) { //Function to return seconds difference between current date and exam date
-     dt1 = new Date(date1);
-     dt2 = new Date(date2);
-     return ((Date.UTC(dt2.getFullYear(), dt2.getMonth(), dt2.getDate(),dt2.getHours(),dt2.getMinutes(),dt2.getSeconds()) - Date.UTC(dt1.getFullYear(), dt1.getMonth(), dt1.getDate(),dt1.getHours(),dt1.getMinutes(),dt1.getSeconds()) ) /(1000));
-  }
+  	var date_diff_indays = function(date1, date2) { //Function to return seconds difference between current date and exam date
+		dt1 = new Date(date1);
+     	dt2 = new Date(date2);
+     	return ((Date.UTC(dt2.getFullYear(), dt2.getMonth(), dt2.getDate(),dt2.getHours(),dt2.getMinutes(),dt2.getSeconds()) - Date.UTC(dt1.getFullYear(), dt1.getMonth(), dt1.getDate(),dt1.getHours(),dt1.getMinutes(),dt1.getSeconds()) ) /(1000));
+  	}
 
-  Test.find({},function(err, foundtest) {
-   if(err) {
-     console.log(err);
-   }
-   else {
-     for(var i = 0; i < foundtest.length; i++) {
-        var timediff  = date_diff_indays(todaydate,Date.parse(foundtest[i].date.toISOString()));
-        var dur = foundtest[i].duration;
-        dur = dur*60;
+  	Test.find({},function(err, foundtest) {
+   		if(err) {
+     		console.log(err);
+   		} else {
+     		for(var i = 0; i < foundtest.length; i++) {
+        		var timediff  = date_diff_indays(todaydate,Date.parse(foundtest[i].date.toISOString()));
+        		var dur = foundtest[i].duration;
+        		dur = dur*60;
 
-        if(timediff + dur > 0) {
-          sendtest.push(foundtest[i]);
-        }
-     }
-    }
+        		if(timediff + dur > 0) {
+          			sendtest.push(foundtest[i]);
+        		}
+     		}
+    	}
 
-    res.render("sharewhichtest",{tests:sendtest});
-  });
+    	res.render("sharewhichtest",{tests:sendtest});
+  	});
 });
 
 app.get("/:testid/sharetestlink", middleware.checkIsCompany, function(req, res) {
@@ -240,6 +219,7 @@ app.post("/:testid/sharetestlink", function(req, res) {
     var date = Date.parse(new Date(year,month, day, hour, minute, second));
 
     date = new Date(date);
+
     var transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
@@ -252,56 +232,56 @@ app.post("/:testid/sharetestlink", function(req, res) {
 
     Test.findOne({_id:req.params.testid}, function(err, testsendmail) {
         if(err) {
-          console.log(err);
+          	console.log(err);
         } else {
-          for(var v = 0; v < testsendmail.candidates.length; v++){
-              idlist.push(testsendmail.candidates[v]);
-          }
+          	for(var v = 0; v < testsendmail.candidates.length; v++){
+              	idlist.push(testsendmail.candidates[v]);
+          	}	
 
-          var maillist=[];
+          	var maillist=[];
 
-          Candidate.find({'_id': { $in : idlist}}, function(err, docs) {
-               for(var i = 0;i < docs.length; i++){
-                 maillist.push(docs[i].username);
-               }
+          	Candidate.find({'_id': { $in : idlist}}, function(err, docs) {
+               	for(var i = 0;i < docs.length; i++){
+                 	maillist.push(docs[i].username);
+               	}
 
-               var mailOptions = {
-                 from: '',
-                 to : maillist,
-                 subject: 'Please refer to the below link',
-                 text: 'https://plusone.ganeshkasar.live/'
-               };
+               	var mailOptions = {
+                 	from: '',
+                 	to : maillist,
+                 	subject: 'Please refer to the below link',
+                 	text: 'https://plusone.ganeshkasar.live/'
+               	};
 
-
-              var j = schedule.scheduleJob(date, function() {
-                console.log('The world is going to end today.');
-                 transporter.sendMail(mailOptions, function (error, info) {
-                     if (error) {
-                         console.log(error);
-                     } else {
-                         console.log('Email sent: ' + info.response);
-                     }
-                   });
-               });
-          });
+              	var j = schedule.scheduleJob(date, function() {
+                	console.log('The world is going to end today.');
+                 	transporter.sendMail(mailOptions, function (error, info) {
+                     	if (error) {
+                         	console.log(error);
+                     	} else {
+                         	console.log('Email sent: ' + info.response);
+                     	}
+                   	});
+               	});
+          	});
         }
-      });
-    res.render("sendmailsuccedfully");
+    });
+    
+	res.render("sendmailsuccedfully");
 });
 
 
-app.get("/signup", function(req, res){
+app.get("/signup", function(req, res) {
     res.render("signup");
 });
 
-app.get("/login", function(req, res){
+app.get("/login", function(req, res) {
     res.render("login");
 });
 
 app.get("/:id/test", function(req, res) {
 
     const test = new Test({
-      name:req.params.id
+      name : req.params.id
     });
 
     const id = test.name;
@@ -312,54 +292,44 @@ app.get("/:id/test", function(req, res) {
             res.redirect("/createtest");
         } else {
 
-            // Test.find({_id:id},function(err,foundD){
-            //   if(err){
-            //     console.log(err);
-            //   }
-            //   else {
-            //   var date= foundD[0].date;
-            //   var duration=foundD[0].duration;
-            //   }
-            // });
-
             Codingproblem.find({test : test.name}, function(err, foundCodingPbs) {
                 if(err) {
                     console.log("Error occured while fetching data from database!");
                     res.redirect("/createtest");
                 } else {
                     Test.find({_id:id},function(err,foundD) {
-                      if(err) {
-                        console.log(err);
-                      }
-                      else {
-                        var date = foundD[0].date;
-                        var duration = foundD[0].duration;
+                      	if(err) {
+                        	console.log(err);
+                      	} else {
+                        	var date = foundD[0].date;
+                        	var duration = foundD[0].duration;
 
-                        duration=duration*60;
+                        	duration = duration*60;
 
-                        var myQuestions = [];
+                        	var myQuestions = [];
 
-                        for(var f = 0; f < foundQuestions.length; f++) {
-                            var question = foundQuestions[f].question;
-                            var a= foundQuestions[f].option1;
-                            var b= foundQuestions[f].option2;
-                            var c= foundQuestions[f].option3;
-                            var d= foundQuestions[f].option4;
-                            var correctAnswer= foundQuestions[f].answer;
-                            var ob = {
-                              question:question,
-                              answers: {
-                                a: a,
-                                b: b,
-                                c: c,
-                                d: d
-                              },
-                              correctAnswer: correctAnswer
-                          };
+							for(var f = 0; f < foundQuestions.length; f++) {
+								var question = foundQuestions[f].question;
+								var a= foundQuestions[f].option1;
+								var b= foundQuestions[f].option2;
+								var c= foundQuestions[f].option3;
+								var d= foundQuestions[f].option4;
+								var correctAnswer= foundQuestions[f].answer;
+								var ob = {
+									question:question,
+									answers: {
+										a : a,
+										b : b,
+										c : c,
+										d : d
+									},
+									correctAnswer: correctAnswer
+								};
 
-                          myQuestions.push(ob);
-                      }
-                        res.render("oldtest", {foundQuestions : myQuestions, date : date, duration : duration, foundCodingProblems : foundCodingPbs});
+                          		myQuestions.push(ob);
+                      		}
+                        	
+							  res.render("oldtest", {foundQuestions : myQuestions, date : date, duration : duration, foundCodingProblems : foundCodingPbs});
                         }
                     });
                 }
@@ -373,123 +343,119 @@ app.post("/test", function(req, res) {
 });
 
 app.get("/viewtest", middleware.checkIsCompany, function(req, res){
-  Test.find({}, function(err, foundTests) {
-      if(err) {
-          res.redirect("/createtest");
-      } else {
-        if(foundTests == 0){
-          res.render("notest");
-        } else {
-        res.render("selectviewtest", {foundTests : foundTests});
-        }
-      }
-  });
+  	Test.find({}, function(err, foundTests) {
+    	if(err) {
+          	res.redirect("/createtest");
+      	} else {
+        	if(foundTests == 0){
+          		res.render("notest");
+        	} else {
+        		res.render("selectviewtest", {foundTests : foundTests});
+        	}
+      	}
+  	});
 });
 
 app.get("/:id/viewtest", function(req, res){ //Test can only be viewed if the test is at that time
 
-  const test = new Test({
-    name:req.params.id
-  });
+  	const test = new Test({
+		name:req.params.id
+  	});
 
-  const id = test.name;
-  var dateExam;
-  var duration;
+  	const id = test.name;
+  	var dateExam;
+  	var duration;
 
-  let one =9;
+  	let one =9;
 
-  Test.find({_id:id},function(err,dateFound){
-    if(err){
-      console.log("Error from test db about date");
-      console.log(err);
-    }
-    else{
-       var date_diff_indays = function(date1,date2) { //Function to return seconds difference between current date and exam date
-          dt1 = new Date(date1);
-          dt2 = new Date(date2);
-          return ((Date.UTC(dt2.getFullYear(), dt2.getMonth(), dt2.getDate(),dt2.getHours(),dt2.getMinutes(),dt2.getSeconds()) - Date.UTC(dt1.getFullYear(), dt1.getMonth(), dt1.getDate(),dt1.getHours(),dt1.getMinutes(),dt1.getSeconds()) ) /(1000));
-       }
+  	Test.find({_id : id},function(err, dateFound) {
+    	if(err) {
+      		console.log("Error from test db about date");
+      		console.log(err);
+    	} else {
+       		var date_diff_indays = function(date1,date2) { //Function to return seconds difference between current date and exam date
+          		dt1 = new Date(date1);
+          		dt2 = new Date(date2);
+          		return ((Date.UTC(dt2.getFullYear(), dt2.getMonth(), dt2.getDate(),dt2.getHours(),dt2.getMinutes(),dt2.getSeconds()) - Date.UTC(dt1.getFullYear(), dt1.getMonth(), dt1.getDate(),dt1.getHours(),dt1.getMinutes(),dt1.getSeconds()) ) /(1000));
+       		}
 
-       dateExam=dateFound[0].date;
-       dateExam.setMinutes(dateExam.getMinutes()-330);
+       		dateExam = dateFound[0].date;
+       		dateExam.setMinutes(dateExam.getMinutes() - 330);
 
-       var curDate = new Date();
+       		var curDate = new Date();
 
-       curDate= curDate.toISOString();
-       dateExam = dateExam.toISOString();
+       		curDate = curDate.toISOString();
+       		dateExam = dateExam.toISOString();
 
-       var timeDiff  = date_diff_indays(dateExam,curDate);
+       		var timeDiff  = date_diff_indays(dateExam,curDate);
 
-       duration=dateFound[0].duration;
-       duration = duration * 60;
+       		duration = dateFound[0].duration;
+       		duration = duration * 60;
 
-       if(duration >= timeDiff && timeDiff >= 0) {
+       		if(duration >= timeDiff && timeDiff >= 0) {
+				Question.find({test : id}, function(err, foundQuestions) {
+           			if(err) {
+               			console.log("Error occured while fetching data from database!");
+               			console.log(err);
+               			res.redirect("/createtest");
+           			} else {
+               			let sendDate = Date.parse(dateExam); //sending in milliseconds (Time passed since I think 1970)
 
-        Question.find({test : id}, function(err, foundQuestions) {
-           if(err) {
-               console.log("Error occured while fetching data from database!");
-               console.log(err);
-               res.redirect("/createtest");
-           } else {
-               let sendDate = Date.parse(dateExam); //sending in milliseconds (Time passed since I think 1970)
+               			Codingproblem.find({test : test.name}, function(err, foundCodingPbs) {
+							if(err) {
+                    			console.log("Error occured while fetching data from database!");
+                    			res.redirect("/createtest");
+                			} else {
+                    			Test.find({_id : id}, function(err,foundD) {
+									if(err) {
+                        				console.log(err);
+                      				} else {
+                        				var date = foundD[0].date;
+                        				var duration = foundD[0].duration;
+                        				duration = duration * 60;
+                        				var myQuestions = [];
+                        				
+										for(var f = 0; f < foundQuestions.length; f++) {
+                            				var question = foundQuestions[f].question;
+                            				var a = foundQuestions[f].option1;
+                            				var b = foundQuestions[f].option2;
+                            				var c = foundQuestions[f].option3;
+                            				var d = foundQuestions[f].option4;
+                            				var correctAnswer = foundQuestions[f].answer;
+                            				var ob = {
+                            					question : question,
+                            					answers : {
+                              						a : a,
+                             	 					b : b,
+                              						c : c,
+                              						d : d
+                            					},
+                            					correctAnswer: correctAnswer
+                          					};
+                          				
+											myQuestions.push(ob);
+                      					}
 
-               Codingproblem.find({test : test.name}, function(err, foundCodingPbs) {
-                if(err) {
-                    console.log("Error occured while fetching data from database!");
-                    res.redirect("/createtest");
-                } else {
-
-                    Test.find({_id:id},function(err,foundD) {
-                      if(err) {
-                        console.log(err);
-                      }
-                      else {
-                        var date = foundD[0].date;
-                        var duration = foundD[0].duration;
-                        duration = duration * 60;
-                        var myQuestions = [];
-                        for(var f=0;f<foundQuestions.length ; f++)
-                          {
-                            var question = foundQuestions[f].question;
-                            var  a= foundQuestions[f].option1;
-                            var  b= foundQuestions[f].option2;
-                            var  c= foundQuestions[f].option3;
-                            var  d= foundQuestions[f].option4;
-                            var correctAnswer= foundQuestions[f].answer;
-                            var ob={
-                            question:question,
-                            answers: {
-                              a: a,
-                              b: b,
-                              c: c,
-                              d: d
-                            },
-                            correctAnswer: correctAnswer
-                          };
-                          myQuestions.push(ob);
-                      }
-
-                      res.render("oldtest", {testid:req.params.id,foundQuestions : myQuestions, date : date, duration : duration, foundCodingProblems : foundCodingPbs});
-                        }
-                    });
-                }
-            });
-           }
-       });
-       }else{
-        var availDateObject = new Date(Date.parse(dateExam));
-        res.render("testCurrentlyNot",{availableAt:availDateObject});
-       }
-    }
-  });
+                      					res.render("oldtest", {testid:req.params.id,foundQuestions : myQuestions, date : date, duration : duration, foundCodingProblems : foundCodingPbs});
+                        			}
+                    			});
+                			}
+            			});
+           			}
+       			});
+       		} else {
+        		var availDateObject = new Date(Date.parse(dateExam));
+        		res.render("testCurrentlyNot",{availableAt:availDateObject});
+       		}
+    	}
+  	});
 });
 
-  app.get("/:stuid/:id/viewtest", function(req, res){       //To prevent user from going back
+app.get("/:stuid/:id/viewtest", function(req, res){       //To prevent user from going back
     res.render("starttest", {stuid : req.params.stuid, id : req.params.id});
-  });
+});
 
-  app.get("/:true/:stuid/:id/viewtest",function(req,res) {
-                                      //Test can only be viewed if the test is at that time with student
+app.get("/:true/:stuid/:id/viewtest", function(req, res) {
     const test = new Test({
         name:req.params.id
     });
@@ -500,7 +466,6 @@ app.get("/:id/viewtest", function(req, res){ //Test can only be viewed if the te
     let one = 9;
 
     Candidate.findOne({username : req.params.stuid}, function(err, stude){
-
         for(let i = 0; i < stude.submitted.length; i++) {
           	if(stude.submitted[i].toString() == req.params.id.toString()) {
             	if(stude.yesorno[i] === true) {
@@ -519,7 +484,7 @@ app.get("/:id/viewtest", function(req, res){ //Test can only be viewed if the te
               	dt1 = new Date(date1);
               	dt2 = new Date(date2);
               	return ((Date.UTC(dt2.getFullYear(), dt2.getMonth(), dt2.getDate(), dt2.getHours(), dt2.getMinutes(), dt2.getSeconds()) - Date.UTC(dt1.getFullYear(), dt1.getMonth(), dt1.getDate(), dt1.getHours(), dt1.getMinutes(), dt1.getSeconds())) /(1000));
-           }
+           	}
 
            	dateExam = dateFound[0].date;
            	dateExam.setMinutes(dateExam.getMinutes() - 330);
@@ -604,38 +569,45 @@ app.get("/:id/viewtest", function(req, res){ //Test can only be viewed if the te
 
 //student result
 app.post("/:testid/:stuid/studentresult",function(req,res){
-  var marks=req.body.resultss;
+  var marks = req.body.resultss;
 
   if(req.body.resultss ==  "")
-    marks=0;
-  Candidate.updateOne(
-    { username: req.params.stuid },
-    { $push: { result: marks } },
-    function(err, result) {
-      if (err) {
-        console.log(err);
-      }
-    }
-  );
-  Candidate.updateOne(
-    {username: req.params.stuid},
-    {$push:{submitted: req.params.testid}},
-    function(err,res){
-      if(err){
-        console.log(err);
-      }
-    }
-  );
-  Candidate.updateOne(
-    { username: req.params.stuid },
-    { $push: { yesorno: true } },
-    function(err, result) {
-      if (err) {
-        console.log(err);
-      }
-    }
-  );
-  res.render("studentresult",{result:req.params.stuid.result,stuid:req.params.stuid});
+    marks = 0;
+  
+	Candidate.updateOne(
+    	{username : req.params.stuid},
+    	{$push : {result : marks}},
+    	
+		function(err, result) {
+      		if (err) {
+        		console.log(err);
+      		}
+    	}
+  	);
+ 	
+	Candidate.updateOne(
+    	{username : req.params.stuid},
+    	{$push : {submitted : req.params.testid}},
+    	
+		function(err, res) {
+      		if(err) {
+        		console.log(err);
+      		}
+    	}
+  	);
+  	
+	Candidate.updateOne(
+    	{username : req.params.stuid},
+    	{$push: {yesorno : true}},
+    	
+		function(err, result) {
+      		if (err) {
+        		console.log(err);
+      		}
+    	}
+  	);
+  	
+	res.render("studentresult", {result : req.params.stuid.result, stuid : req.params.stuid});
 });
 
 //AUTH ROUTES//
@@ -654,45 +626,45 @@ app.post("/studentRegister", function(req, res) {
         newCandidate.isAdmin = true;
     }
 
-    Candidate.register(newCandidate, req.body.password, function(err, user){
-        if(err){
+    Candidate.register(newCandidate, req.body.password, function(err, user) {
+        if(err) {
             console.log(err);
             return res.render("studentRegister", {error: err.message});
         }
 
         passport.authenticate("local") (req, res, function() {
             req.flash("success", "Welcome " + newCandidate.name + "!");
-            if(req.body.username === 'iamadmin@gmail.com' && req.body.password === 'admin123'){
+            if(req.body.username === 'iamadmin@gmail.com' && req.body.password === 'admin123') {
                 res.redirect("/companyLanding");   //admin hai toh company page
             } else {
-              var sendtest = [];
-              var todaydate = Date.parse((new Date()).toISOString()) + 19800000;
-              var date_diff_indays = function(date1,date2) { //Function to return seconds difference between current date and exam date
-                 dt1 = new Date(date1);
-                 dt2 = new Date(date2);
-                 return ((Date.UTC(dt2.getFullYear(), dt2.getMonth(), dt2.getDate(),dt2.getHours(),dt2.getMinutes(),dt2.getSeconds()) - Date.UTC(dt1.getFullYear(), dt1.getMonth(), dt1.getDate(),dt1.getHours(),dt1.getMinutes(),dt1.getSeconds()) ) /(1000));
-              }
+              	var sendtest = [];
+              	var todaydate = Date.parse((new Date()).toISOString()) + 19800000;
+              	var date_diff_indays = function(date1,date2) { //Function to return seconds difference between current date and exam date
+                	dt1 = new Date(date1);
+                 	dt2 = new Date(date2);
+                 	return ((Date.UTC(dt2.getFullYear(), dt2.getMonth(), dt2.getDate(),dt2.getHours(),dt2.getMinutes(),dt2.getSeconds()) - Date.UTC(dt1.getFullYear(), dt1.getMonth(), dt1.getDate(),dt1.getHours(),dt1.getMinutes(),dt1.getSeconds()) ) /(1000));
+              	}
 
-              Test.find({},function(err,foundtest){
+              	Test.find({},function(err,foundtest) {
 
-                if(err) {
-                 console.log(err);
-               } else {
-                 for(var i = 0; i < foundtest.length; i++) {
-                   var timediff = date_diff_indays(todaydate,Date.parse(foundtest[i].date.toISOString()));
-                   var dur = foundtest[i].duration;
-                   dur = dur*60;
+                	if(err) {
+                 		console.log(err);
+               		} else {
+                 		for(var i = 0; i < foundtest.length; i++) {
+                  			var timediff = date_diff_indays(todaydate,Date.parse(foundtest[i].date.toISOString()));
+                   			var dur = foundtest[i].duration;
+                   			dur = dur*60;
 
-                   if(timediff + dur > 0) {
-                    sendtest.push(foundtest[i]);
-                  }
-                 }
-               }
-               res.render("studentlanding", {sendtest : sendtest, stuid : req.body.username});
-             });
-            }
-        })
-
+                   			if(timediff + dur > 0) {
+                    			sendtest.push(foundtest[i]);
+                  			}
+                 		}
+               		}
+               	
+					res.render("studentlanding", {sendtest : sendtest, stuid : req.body.username});
+            	});
+        	}
+    	})
     });
 });
 
@@ -711,105 +683,103 @@ app.post("/studentLogin", passport.authenticate("local",
     }), function(req, res) {
 
         //Logic to check if already logged in somewhere
-        //req.body.isLoggedIn = true;
-
-        if(req.body.username === "iamadmin@gmail.com" &&  req.body.password === "admin123")
-        {
+        
+        if(req.body.username === "iamadmin@gmail.com" &&  req.body.password === "admin123") {
             res.render("companyLanding");   //redirect to student landing page
-        }else{
-          Candidate.findOne({username:req.body.username},function(err,stud){
-            //console.log("onnn");
-            if(stud.isLoggedIn == true) {
-                req.logout();
-                res.redirect("/studentLogin");
-            }
-          });
+        } else {
+          	Candidate.findOne({username : req.body.username}, function(err, stud) {
+            	if(stud.isLoggedIn == true) {
+                	req.logout();
+                	res.redirect("/studentLogin");
+            	}
+          	});
 
-          Candidate.updateOne({username: req.body.username}, {$set: {isLoggedIn: true}},function(err){
-            if(err)
-              console.log(err);
-          });
-          // To show the test on students page
-          var sendtest=[];
-          var todaydate=Date.parse((new Date()).toISOString())+19800000;
-          var date_diff_indays = function(date1,date2) { //Function to return seconds difference between current date and exam date
-             dt1 = new Date(date1);
-             dt2 = new Date(date2);
-             return ((Date.UTC(dt2.getFullYear(), dt2.getMonth(), dt2.getDate(),dt2.getHours(),dt2.getMinutes(),dt2.getSeconds()) - Date.UTC(dt1.getFullYear(), dt1.getMonth(), dt1.getDate(),dt1.getHours(),dt1.getMinutes(),dt1.getSeconds()) ) /(1000));
-          }
-          Test.find({},function(err,foundtest){
-           if(err){
-             console.log(err);
-           }
-           else{
-             // console.log("pp");
-             // console.log(foundtest);
-             Candidate.find({username:req.body.username},function(err,student){
-               for(var i=0;i<  foundtest.length ;i++){
-                 var timediff  = date_diff_indays(todaydate,Date.parse(foundtest[i].date.toISOString()));
-                 var dur=foundtest[i].duration;
-                 dur=dur*60;
-                 if(timediff + dur>00){
-                  for(var c=0 ; c< foundtest[i].candidates.length;c++){
-                    if((foundtest[i].candidates[c].toString() == student[0]._id.toString())){
-                        break;
-                    }
-                  }
-                  if(c==foundtest[i].candidates.length){
-                    sendtest.push(foundtest[i]);
-                  }
-                }
-               }
-              // console.log(sendtest);
-              res.render("studentlanding",{sendtest:sendtest,stuid:req.body.username});
-             });
-         }
-       });
-}});
+          	Candidate.updateOne({username : req.body.username}, {$set : {isLoggedIn : true}},function(err) {
+            	if(err)
+              		console.log(err);
+          	});
+          	// To show the test on students page
+          	var sendtest = [];
+          	var todaydate = Date.parse((new Date()).toISOString()) + 19800000;
+          	var date_diff_indays = function(date1,date2) { //Function to return seconds difference between current date and exam date
+             	dt1 = new Date(date1);
+             	dt2 = new Date(date2);
+             	return ((Date.UTC(dt2.getFullYear(), dt2.getMonth(), dt2.getDate(),dt2.getHours(),dt2.getMinutes(),dt2.getSeconds()) - Date.UTC(dt1.getFullYear(), dt1.getMonth(), dt1.getDate(),dt1.getHours(),dt1.getMinutes(),dt1.getSeconds()) ) /(1000));
+          	}
+          	
+			Test.find({}, function(err, foundtest) {
+           		if(err) {
+             		console.log(err);
+          	 	} else {
+             		Candidate.find({username : req.body.username}, function(err, student) {
+               			for(var i = 0; i < foundtest.length; i++) {
+                 			var timediff = date_diff_indays(todaydate, Date.parse(foundtest[i].date.toISOString()));
+                 			var dur = foundtest[i].duration;
+                 			dur = dur*60;
+                 			
+							if(timediff + dur > 0) {
+                  				for(var c = 0; c < foundtest[i].candidates.length; c++) {
+                   	 				if((foundtest[i].candidates[c].toString() == student[0]._id.toString())) {
+                        				break;
+                    				}
+                  				}
+                  			
+								if(c == foundtest[i].candidates.length) {
+                    				sendtest.push(foundtest[i]);
+                 	 			}
+                			}
+               			}
+              		
+						res.render("studentlanding",{sendtest:sendtest,stuid:req.body.username});
+             		});
+         		}
+       		});
+
+		}
+	});
 
 //student register for the test
-app.get("/:stuid/:testid/registerteststudent",function(req,res){
-  Candidate.find({username:req.params.stuid},function(err,student){
-    if(err){
-      console.log(err);
-    }else{
-        var s=student[0]._id;
-        Test.updateOne(
-          { _id: req.params.testid },
-          { $push: { candidates: s} },
-          function(err, result) {
-            if (err) {
-              res.send(err);
-            }
-          }
-        );
-    }
-  });
+app.get("/:stuid/:testid/registerteststudent", function(req, res) {
+  	Candidate.find({username : req.params.stuid}, function(err, student) {
+    	if(err) {
+      		console.log(err);
+    	} else {
+        	var s = student[0]._id;
+        	Test.updateOne(
+          		{_id : req.params.testid},
+          		{$push: {candidates : s}},
+          		function(err, result) {
+            		if (err) {
+              			res.send(err);
+            		}
+          		}
+        	);
+    	}
+  	});
 
-  var sendtest=[];
-  var todaydate=Date.parse((new Date()).toISOString())+19800000;
-  var date_diff_indays = function(date1,date2) { //Function to return seconds difference between current date and exam date
-     dt1 = new Date(date1);
-     dt2 = new Date(date2);
-     return ((Date.UTC(dt2.getFullYear(), dt2.getMonth(), dt2.getDate(),dt2.getHours(),dt2.getMinutes(),dt2.getSeconds()) - Date.UTC(dt1.getFullYear(), dt1.getMonth(), dt1.getDate(),dt1.getHours(),dt1.getMinutes(),dt1.getSeconds()) ) /(1000));
-  }
-  Test.find({},function(err,foundtest){
-   if(err){
-     console.log(err);
-   }
-   else{
-     //console.log(foundtest);
-     Candidate.find({username:req.params.stuid},function(err,student){
-
-       for(var i=0;i<  foundtest.length ;i++){
-         if(foundtest[i]._id.toString()!=req.params.testid.toString())
-        {var timediff  = date_diff_indays(todaydate,Date.parse(foundtest[i].date.toISOString()));
-        var dur=foundtest[i].duration;
-        dur=dur*60;
-        if(timediff + dur>0){
-          for(var c=0 ; c< foundtest[i].candidates.length;c++){
-            if((foundtest[i].candidates[c].toString() == student[0]._id.toString())){
-                break;
+  	var sendtest = [];
+  	var todaydate = Date.parse((new Date()).toISOString()) + 19800000;
+  	var date_diff_indays = function(date1,date2) { //Function to return seconds difference between current date and exam date
+     	dt1 = new Date(date1);
+     	dt2 = new Date(date2);
+     	return ((Date.UTC(dt2.getFullYear(), dt2.getMonth(), dt2.getDate(),dt2.getHours(),dt2.getMinutes(),dt2.getSeconds()) - Date.UTC(dt1.getFullYear(), dt1.getMonth(), dt1.getDate(),dt1.getHours(),dt1.getMinutes(),dt1.getSeconds()) ) /(1000));
+  	}
+  	
+	Test.find({}, function(err, foundtest) {
+   		if(err) {
+     		console.log(err);
+   	} else {
+     	Candidate.find({username : req.params.stuid}, function(err, student) {
+       		for(var i = 0; i < foundtest.length; i++) {
+         		if(foundtest[i]._id.toString()!=req.params.testid.toString()) {
+					var timediff  = date_diff_indays(todaydate,Date.parse(foundtest[i].date.toISOString()));
+        			var dur = foundtest[i].duration;
+        			dur = dur*60;
+        			
+					if(timediff + dur > 0) {
+          				for(var c = 0; c < foundtest[i].candidates.length; c++) {
+            				if((foundtest[i].candidates[c].toString() == student[0]._id.toString())) { 
+                				break;
             }
           }
           if(c==foundtest[i].candidates.length){
