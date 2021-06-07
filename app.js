@@ -12,6 +12,7 @@ const express         = require('express'),
       middleware      = require('./middleware');
 
 const app = express();
+require('dotenv').config();
 
 app.set('view engine', 'ejs');
 
@@ -20,7 +21,8 @@ var isAdmin = false;
 app.use(bodyParser.urlencoded({extended : true}));
 app.use(express.static(__dirname + "/public"));
 
-mongoose.connect("mongodb://localhost/project", {useNewUrlParser: true, useUnifiedTopology: true});
+const uri = process.env.mongo_uri;
+mongoose.connect(uri, {useNewUrlParser: true, useUnifiedTopology: true});
 
 /*
 ================================================================================================
